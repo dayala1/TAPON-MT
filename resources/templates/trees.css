@@ -1,0 +1,54 @@
+.node circle {
+    fill: #fff;
+    stroke-width: 3px;
+}
+
+.node text {
+    font: 12px sans-serif;
+}
+
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 2px;
+}
+.back {
+    background-color: grey;
+    width: 100%;
+    height: 30px;
+    line-height: 30px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-family: sans-serif;
+    font-weight: bold;
+    position:fixed;
+    display:block;
+    text-align: center;
+    color: white;
+}
+
+.treeLink{
+    font-family: sans-serif;
+    text-decoration: none;
+    padding: 5px 5px 5px 5px;
+    text-align: center;
+    width: 70px;
+    display: block;
+}
+
+.predict-yes{
+    stroke: #4d8058;
+}
+
+.predict-no{
+    stroke: #97403c;
+}
+
+rect{
+    stroke-width: 3px;
+    stroke: #8c8c8c;
+}
+
+.decision-mark{
+    font-weight: bold;
+}

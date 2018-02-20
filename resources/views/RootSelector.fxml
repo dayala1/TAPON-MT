@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<FlowPane alignment="CENTER" prefHeight="252.0" prefWidth="400.0" stylesheets="style.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.RootSelectorController">
+   <children>
+      <VBox alignment="CENTER" spacing="20.0">
+         <children>
+            <VBox accessibleHelp="This is the help" accessibleText="This is some text" alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="400.0" spacing="10.0">
+               <children>
+                  <Label text="Datasets root:" />
+                  <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="269.0" spacing="20.0">
+                     <children>
+                        <Button fx:id="datasetsPathButton" mnemonicParsing="false" onAction="#chooseDatasetsPath">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="folder_64.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <TextField fx:id="datasetsPathText" prefHeight="32.0" prefWidth="240.0" promptText="/datasets/found/here" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="16.0" styleClass="toolTip" text="?">
+                           <tooltip>
+                              <Tooltip prefWidth="150.0" text="This is the location of the datasets that will be used for training and testing. This folder must contain a subfolder for each domain (with any name). Each domain folder must contain 10 folders (named &quot;1&quot;, &quot;2&quot;...) corresponding to 10 folds. Each fold folder must contain json files corresponding to the datasets themselves" wrapText="true" />
+                           </tooltip>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets left="25.0" />
+               </padding>
+            </VBox>
+            <VBox alignment="CENTER_LEFT" prefHeight="80.0" prefWidth="400.0" spacing="10.0">
+               <children>
+                  <Label text="Model root:" />
+                  <HBox alignment="CENTER_LEFT" spacing="20.0">
+                     <children>
+                        <Button fx:id="modelPathButton" mnemonicParsing="false" onAction="#chooseModelPath">
+                           <graphic>
+                              <ImageView fitHeight="32.0" fitWidth="32.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="folder_64.png" />
+                                 </image>
+                              </ImageView>
+                           </graphic>
+                        </Button>
+                        <TextField fx:id="modelPathText" prefHeight="32.0" prefWidth="240.0" promptText="/model/created/here" />
+                        <Label alignment="CENTER" contentDisplay="CENTER" prefHeight="16.0" prefWidth="16.0" styleClass="toolTip" text="?">
+                           <tooltip>
+                              <Tooltip maxWidth="-Infinity" prefWidth="150.0" text="This is where the model will be created, including the files corresponding to computed features from training datasets, classifiers and other files." wrapText="true" />
+                           </tooltip>
+                        </Label>
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets left="25.0" />
+               </padding>
+            </VBox>
+            <Button fx:id="doneButton" mnemonicParsing="false" onAction="#done" text="Done" />
+         </children>
+      </VBox>
+   </children>
+</FlowPane>

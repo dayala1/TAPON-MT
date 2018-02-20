@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="./trees.css">
+    <title>Random Forest Trees</title>
+
+</head>
+
+<ul>
+{% for tree in trees %}
+    <li><a class="treeLink" href="{{ tree }}">Tree {{ loop.index - 1}}</a></li>
+
+{% endfor %}
+</ul>
+</body>
+</html>

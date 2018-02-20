@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="567.0" prefWidth="960.0" stylesheets="style.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.ModelCreationController">
+   <children>
+      <VBox layoutX="29.0" layoutY="26.0" spacing="27.0">
+         <children>
+            <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <Label styleClass="fieldLabel" text="Domains:">
+                           <tooltip>
+                              <Tooltip prefWidth="150.0" text="These are the domains that will be used to train the model. Each domain corresponds to a folder that should contain 10 folders (named 1, 2, 3...) with dataset json files." wrapText="true" />
+                           </tooltip>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tableDomains" prefHeight="466.0" prefWidth="183.0">
+                    <columns>
+                      <TableColumn fx:id="domainNames" prefWidth="259.0" text="Domain name" />
+                      <TableColumn fx:id="domainSelected" prefWidth="51.0" text="include" />
+                    </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <TitledPane collapsible="false" prefHeight="179.0" prefWidth="311.0" text="Domain details">
+               <content>
+                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                     <content>
+                        <AnchorPane fx:id="domainDetails" />
+                     </content>
+                  </ScrollPane>
+               </content>
+            </TitledPane>
+         </children>
+      </VBox>
+      <VBox layoutX="619.0" layoutY="26.0">
+         <children>
+            <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <Label styleClass="fieldLabel" text="Hint-free feature groups:">
+                           <tooltip>
+                              <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-free phase. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                           </tooltip>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tableFeatures" prefHeight="239.0" prefWidth="311.0">
+                     <columns>
+                        <TableColumn fx:id="featureNames" prefWidth="196.0" text="Name" />
+                        <TableColumn fx:id="featureTypes" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
+                        <TableColumn fx:id="featureSelected" prefWidth="50.0" text="Use" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+            <VBox prefHeight="206.0" prefWidth="311.0" spacing="10.0">
+               <children>
+                  <HBox>
+                     <children>
+                        <Label styleClass="fieldLabel" text="Hint-based feature groups:">
+                           <tooltip>
+                              <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-based phase, in addition to the hint-free ones. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                           </tooltip>
+                        </Label>
+                     </children>
+                  </HBox>
+                  <TableView fx:id="tableFeaturesHB" prefHeight="205.0" prefWidth="311.0">
+                     <columns>
+                        <TableColumn fx:id="featureNamesHB" prefWidth="196.0" text="Name" />
+                        <TableColumn fx:id="featureTypesHB" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
+                        <TableColumn fx:id="featureSelectedHB" prefWidth="50.0" text="Use" />
+                     </columns>
+                  </TableView>
+               </children>
+            </VBox>
+         </children>
+      </VBox>
+      <VBox layoutX="364.0" layoutY="53.0" spacing="27.0">
+         <children>
+            <TitledPane animated="false" collapsible="false" prefHeight="217.0" prefWidth="227.0">
+              <content>
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="289.0" prefWidth="350.0">
+                     <children>
+                        <VBox layoutX="26.0" layoutY="-34.0" prefHeight="180.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <VBox prefWidth="100.0">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Number of trees">
+                                             <tooltip>
+                                                <Tooltip prefWidth="150.0" text="The number of trees for the random forest classifier. Increasing the number of trees increases its performance, since the final decision is based in more votes. However, incresing this paramenter linearly increases training and application time." wrapText="true" />
+                                             </tooltip>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <Slider fx:id="numTrees" blockIncrement="25.0" max="150.0" showTickLabels="true" showTickMarks="true" value="50.0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="100.0">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Maximum number of bins">
+                                             <tooltip>
+                                                <Tooltip prefWidth="150.0" text="Maximum number of bins used when discretizing continuous features. Increasing the number of bins allows the classifier to make fine-grained split decisions, but increases the training time." wrapText="true" />
+                                             </tooltip>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <Slider fx:id="maxBins" blockIncrement="8.0" majorTickUnit="8.0" max="64.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="32.0" />
+                                 </children>
+                              </VBox>
+                              <VBox prefWidth="100.0">
+                                 <children>
+                                    <HBox prefHeight="100.0" prefWidth="200.0">
+                                       <children>
+                                          <Label text="Maximum tree depth">
+                                             <tooltip>
+                                                <Tooltip prefWidth="150.0" text="The maximum depth of the decision trees. More depth allows the algorithm to obtain more complex rules that take more features into account. A lower number, however, can help avoid overfitting." wrapText="true" />
+                                             </tooltip>
+                                          </Label>
+                                       </children>
+                                    </HBox>
+                                    <Slider fx:id="maxDepth" blockIncrement="1.0" majorTickUnit="5.0" max="30.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="20.0" />
+                                 </children>
+                              </VBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+              </content>
+               <graphic>
+                  <Label styleClass="fieldLabel" text="Classifier settings">
+                     <tooltip>
+                        <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-based phase, in addition to the hint-free ones. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                     </tooltip>
+                  </Label>
+               </graphic>
+            </TitledPane>
+            <TitledPane animated="false" collapsible="false" prefHeight="179.0" prefWidth="227.0">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="153.0" prefWidth="226.0">
+                     <children>
+                        <VBox alignment="CENTER" layoutX="26.0" layoutY="-34.0" prefHeight="180.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <children>
+                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                                 <children>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                       <children>
+                                          <CheckBox fx:id="fold1" mnemonicParsing="false" selected="true" text="1" />
+                                          <CheckBox fx:id="fold2" mnemonicParsing="false" selected="true" text="2" />
+                                          <CheckBox fx:id="fold3" mnemonicParsing="false" selected="true" text="3" />
+                                          <CheckBox fx:id="fold4" mnemonicParsing="false" selected="true" text="4" />
+                                          <CheckBox fx:id="fold5" mnemonicParsing="false" selected="true" text="5" />
+                                       </children>
+                                    </VBox>
+                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                       <children>
+                                          <CheckBox fx:id="fold6" mnemonicParsing="false" selected="true" text="6" />
+                                          <CheckBox fx:id="fold7" mnemonicParsing="false" selected="true" text="7" />
+                                          <CheckBox fx:id="fold8" mnemonicParsing="false" selected="true" text="8" />
+                                          <CheckBox fx:id="fold9" mnemonicParsing="false" selected="true" text="9" />
+                                          <CheckBox fx:id="fold10" mnemonicParsing="false" selected="true" text="10" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                              </HBox>
+                           </children>
+                        </VBox>
+                     </children>
+                  </AnchorPane>
+               </content>
+               <tooltip>
+                  <Tooltip prefWidth="150.0" text="These are the folds that will be used to train the model. It is recommended to leave some folds unselected in order to use them for testing." wrapText="true" />
+               </tooltip>
+               <graphic>
+                  <Label styleClass="fieldLabel" text="Folds">
+                     <tooltip>
+                        <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-based phase, in addition to the hint-free ones. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                     </tooltip>
+                  </Label>
+               </graphic>
+            </TitledPane>
+         </children>
+      </VBox>
+      <Button fx:id="createModelButton" defaultButton="true" layoutX="348.0" layoutY="495.0" mnemonicParsing="false" onAction="#createModel" prefHeight="40.0" prefWidth="264.0" text="Create Model">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Button>
+   </children>
+</AnchorPane>

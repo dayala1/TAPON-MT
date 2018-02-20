@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="212.0" prefWidth="508.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.ModelProgressController">
+   <children>
+      <Label fx:id="l1" layoutX="20.0" layoutY="64.0" prefHeight="17.0" prefWidth="468.0" wrapText="true" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" />
+      <Label fx:id="l2" layoutX="20.0" layoutY="81.0" prefHeight="17.0" prefWidth="468.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" />
+      <ProgressBar fx:id="bar" layoutX="20.0" layoutY="14.0" prefHeight="38.0" prefWidth="468.0" progress="0.0" AnchorPane.leftAnchor="20.0" AnchorPane.rightAnchor="20.0" AnchorPane.topAnchor="20.0">
+         <opaqueInsets>
+            <Insets />
+         </opaqueInsets>
+      </ProgressBar>
+      <TextArea fx:id="textArea" editable="false" layoutY="105.0" prefHeight="108.0" prefWidth="508.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" />
+   </children>
+</AnchorPane>

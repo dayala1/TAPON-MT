@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TreeView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+
+<SplitPane dividerPositions="0.20041753653444677, 0.3966597077244259" prefHeight="720.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.ModelTestingController">
+  <items>
+      <VBox prefHeight="200.0" prefWidth="100.0">
+         <children>
+            <StackPane prefHeight="40.0">
+               <children>
+                  <Button fx:id="testButton" disable="true" mnemonicParsing="false" onAction="#testModel" text="Test selected model" />
+               </children>
+               <padding>
+                  <Insets top="15.0" />
+               </padding>
+            </StackPane>
+            <StackPane prefHeight="40.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#reloadTree" text="Reload" />
+               </children>
+               <padding>
+                  <Insets top="15.0" />
+               </padding>
+            </StackPane>
+            <Accordion>
+              <panes>
+                <TitledPane text="Domains">
+                     <content>
+                        <TableView fx:id="tableDomains" prefHeight="466.0" prefWidth="183.0">
+                           <columns>
+                              <TableColumn fx:id="domainNames" prefWidth="136.0" text="Domain name" />
+                              <TableColumn fx:id="domainSelected" prefWidth="52.0" text="include" />
+                           </columns>
+                        </TableView>
+                     </content>
+                </TitledPane>
+                <TitledPane text="Folds">
+                     <content>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                           <children>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                 <children>
+                                    <CheckBox fx:id="fold1" mnemonicParsing="false" text="1" />
+                                    <CheckBox fx:id="fold2" mnemonicParsing="false" text="2" />
+                                    <CheckBox fx:id="fold3" mnemonicParsing="false" text="3" />
+                                    <CheckBox fx:id="fold4" mnemonicParsing="false" text="4" />
+                                    <CheckBox fx:id="fold5" mnemonicParsing="false" text="5" />
+                                 </children>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                 <children>
+                                    <CheckBox fx:id="fold6" mnemonicParsing="false" text="6" />
+                                    <CheckBox fx:id="fold7" mnemonicParsing="false" text="7" />
+                                    <CheckBox fx:id="fold8" mnemonicParsing="false" text="8" />
+                                    <CheckBox fx:id="fold9" mnemonicParsing="false" text="9" />
+                                    <CheckBox fx:id="fold10" mnemonicParsing="false" text="10" />
+                                 </children>
+                              </VBox>
+                           </children>
+                           <padding>
+                              <Insets bottom="20.0" top="20.0" />
+                           </padding>
+                        </HBox>
+                     </content>
+                </TitledPane>
+                <TitledPane text="Model">
+                     <content>
+                        <TreeView fx:id="modelsTreeView" prefHeight="700.0" />
+                     </content>
+                </TitledPane>
+              </panes>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
+               <padding>
+                  <Insets top="20.0" />
+               </padding>
+            </Accordion>
+         </children>
+      </VBox>
+      <TreeView fx:id="resultsTreeView" />
+      <ScrollPane>
+         <content>
+            <VBox fx:id="vBox" spacing="30.0">
+               <padding>
+                  <Insets left="20.0" top="20.0" />
+               </padding></VBox>
+         </content>
+      </ScrollPane>
+  </items>
+</SplitPane>
