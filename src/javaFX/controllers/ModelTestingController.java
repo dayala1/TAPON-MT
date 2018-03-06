@@ -4,6 +4,7 @@ import com.sun.javafx.tk.Toolkit;
 import dataset.Dataset;
 import dataset.Record;
 import dataset.Slot;
+import experimentation.ResultsClass;
 import experimentation.ResultsDataset;
 import javaFX.Colors.Color;
 import javaFX.Colors.Colors;
@@ -20,6 +21,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.BarChart;
+import javafx.scene.chart.CategoryAxis;
+import javafx.scene.chart.NumberAxis;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -132,11 +137,44 @@ public class ModelTestingController implements Initializable {
         ResultsDataset results = (ResultsDataset)FileUtilsCust.load(resultsPath);
         vBox.getChildren().clear();
         if(resultsItem.getParent().getValue().startsWith("A") || resultsItem.getParent().getValue().startsWith("R")){
-            vBox.getChildren().add(new Label(results.getResultsClasses().get(classString).toString()));
+            //Class results
+            ResultsClass rc = results.getResultsClasses().get(classString);
+            vBox.getChildren().add(new Label(rc.toString()));
+            CategoryAxis xAxis = new CategoryAxis();
+            NumberAxis yAxis = new NumberAxis();
+            yAxis.setUpperBound(1.0);
+            yAxis.setLowerBound(0.0);
+            BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+            chart.setTitle("Class results");
+            xAxis.setLabel("Measure");
+            yAxis.setLabel("Value");
+            XYChart.Series series = new XYChart.Series();
+            series.getData().add(new XYChart.Data("Precision", rc.getPrecision()));
+            series.getData().add(new XYChart.Data("Recall", rc.getRecall()));
+            series.getData().add(new XYChart.Data("F1", rc.getF1()));
+            chart.getData().add(series);
+            chart.setLegendVisible(false);
+            vBox.getChildren().add(chart);
         } else {
+            //Global results
             vBox.getChildren().add(new Label(results.toString()));
-            //Graph insanity
-            AnchorPane aPane = new AnchorPane();
+            CategoryAxis xAxis = new CategoryAxis();
+            NumberAxis yAxis = new NumberAxis();
+            yAxis.setUpperBound(1.0);
+            yAxis.setLowerBound(0.0);
+            BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
+            chart.setTitle("Global results");
+            xAxis.setLabel("Measure");
+            yAxis.setLabel("Value");
+            XYChart.Series series = new XYChart.Series();
+            series.getData().add(new XYChart.Data("Accuracy", results.getAccuracy()));
+            series.getData().add(new XYChart.Data("Macro Precision", results.getMacroPrecision()));
+            series.getData().add(new XYChart.Data("Macro Recall", results.getMacroRecall()));
+            series.getData().add(new XYChart.Data("Macro F1", results.getMacroF1()));
+            chart.getData().add(series);
+            chart.setLegendVisible(false);
+            vBox.getChildren().add(chart);
+            //Matrix button
             Button matButton = new Button("Similarity matrix");
             matButton.setOnAction(new EventHandler<ActionEvent>() {
                 @Override
@@ -145,7 +183,6 @@ public class ModelTestingController implements Initializable {
                 }
             });
             vBox.getChildren().add(matButton);
-            vBox.getChildren().add(aPane);
         }
     }
 

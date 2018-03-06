@@ -20,6 +20,7 @@ import featuresCalculation.featureGroups.slot.NumberOfBrothersGroup;
 import javaFX.EntryPoint;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -35,7 +36,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import model.randomForest.ModelHandlerRandomForest;
@@ -116,7 +118,7 @@ public class ModelCreationController implements Initializable {
 	private Slider maxDepth;
 
 	@FXML
-	private AnchorPane domainDetails;
+	private VBox domainDetails;
 
 	private Integer numAttributes;
 	private Integer numNumeric;
@@ -129,7 +131,9 @@ public class ModelCreationController implements Initializable {
 	private Map<String, Integer> recordClassesCount;
 	private Map<Integer, Integer> depthCount;
 
-	public void viewDetails(ActionEvent event, DomainSelection ds) throws IOException, ParseException {
+
+
+	public void viewDetails(DomainSelection ds) throws IOException, ParseException {
 		Label label;
 		File detailsFile;
 		JSONObject jsonObject;
@@ -141,25 +145,60 @@ public class ModelCreationController implements Initializable {
 
 		detailsFile = new File(ds.getFolderPath(), "metadata.json");
 		if(detailsFile.exists()){
+			domainDetails.getChildren().clear();
 			fileReader = new FileReader(detailsFile);
 			jsonParser = new JSONParser();
 			jsonObject = (JSONObject)jsonParser.parse(fileReader);
+			System.out.println(jsonObject.toJSONString());
+			jsonObject.forEach((key, value) -> {
+				Label keyLabel = new Label(String.format("%s: ", key));
+				if(!(value instanceof JSONObject)){
+					Label valueLabel = new Label(value.toString());
+					HBox hBox = new HBox();
+					hBox.getChildren().add(keyLabel);
+					hBox.getChildren().add(valueLabel);
+					hBox.setPadding(new Insets(5, 10, 5, 10));
+					hBox.getStyleClass().add("details-element");
+					domainDetails.getChildren().add(hBox);
+				} else {
+					VBox vBox = new VBox();
+					vBox.getStyleClass().add("details-element");
+					vBox.setSpacing(5.0);
+					vBox.setPadding(new Insets(5,5,5,5));
+					vBox.getChildren().add(keyLabel);
+					VBox vBox2 = new VBox();
+					vBox2.setPadding(new Insets(0, 0, 0, 15));
+					vBox2.setSpacing(5.0);
+					((JSONObject)value).forEach((key2, value2)->{
+						Label keyLabel2 = new Label(String.format("%s: ", key2));
+						Label valueLabel2 = new Label(value2.toString());
+						HBox hBox2 = new HBox();
+						hBox2.getChildren().add(keyLabel2);
+						hBox2.getChildren().add(valueLabel2);
+						hBox2.setPadding(new Insets(5, 10, 5, 10));
+						hBox2.getStyleClass().add("details-element");
+						hBox2.getStyleClass().add("details-element-2");
+						vBox2.getChildren().add(hBox2);
+					});
+					vBox.getChildren().add(vBox2);
+					domainDetails.getChildren().add(vBox);
+				}
+			});
 			fileReader.close();
-			gson = new GsonBuilder().setPrettyPrinting().create();
-			parser = new JsonParser();
-			element = parser.parse(jsonObject.toJSONString());
-			label = new Label(gson.toJson(element));
+
 		} else {
-			label = new Label("There are no details about this dataset. Try using the analyze dataset option");
+			Label ndLabel = new Label("There are no details about this dataset. Try using the analyze dataset option");
+			ndLabel.setPadding(new Insets(10, 10, 10, 10));
+			ndLabel.setLayoutX(10.0);
+			ndLabel.setLayoutY(10.0);
+			domainDetails.getChildren().clear();
+			domainDetails.getChildren().add(ndLabel);
 		}
-		label.setPadding(new Insets(10, 10, 10, 10));
-		label.setLayoutX(10.0);
-		label.setLayoutY(10.0);
-		domainDetails.getChildren().clear();
-		domainDetails.getChildren().add(label);
+
+
 	}
 
-	public void analyzeDomain(ActionEvent event, DomainSelection ds) throws IOException, ParseException {
+	public void analyzeDomain(DomainSelection ds) throws IOException, ParseException {
 		File detailsFile;
 		JSONObject jsonObject;
 		JSONParser jsonParser;
@@ -299,7 +338,7 @@ public class ModelCreationController implements Initializable {
 					@Override
 					public void handle(ActionEvent event) {
 						try {
-							viewDetails(event, row.getItem());
+							viewDetails(row.getItem());
 						} catch (Exception e) {
 							displayError("Domain details visualization error", "There was an error while trying to load the domain details");
 						}
@@ -312,7 +351,7 @@ public class ModelCreationController implements Initializable {
 					@Override
 					public void handle(ActionEvent event) {
 						try {
-							analyzeDomain(event, row.getItem());
+							analyzeDomain(row.getItem());
 						} catch (Exception e) {
 							displayError("Domain analysis error", "There was an error while trying to analyze the domain");
 						}
@@ -325,6 +364,18 @@ public class ModelCreationController implements Initializable {
 								.otherwise(menu)
 				);
 				return row;
+			}
+		});
+		tableDomains.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DomainSelection>() {
+			@Override
+			public void changed(ObservableValue<? extends DomainSelection> observable, DomainSelection oldValue, DomainSelection newValue) {
+				if(newValue != null) {
+					try {
+						viewDetails(newValue);
+					} catch (Exception e) {
+						displayError("Domain details visualization error", "There was an error while trying to load the domain details");
+					}
+				}
 			}
 		});
 		domainNames.setCellValueFactory(new PropertyValueFactory<DomainSelection, String>("name"));

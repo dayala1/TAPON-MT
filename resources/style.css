@@ -15,3 +15,17 @@
     -fx-background-insets: 0, 1, 2;
     -fx-padding: 0.416667em; /* 5 */
 }
+
+.details-element{
+	-fx-border-style: solid;
+	-fx-border-color: grey;
+	-fx-border-radius: 5px;
+	-fx-border-width: 1px;
+	margin:10px;
+}
+
+.details-element-2{
+	-fx-border-color: #746f8a;
+	-fx-background-color: #d4d2f1;
+	-fx-background-radius: 5px;
+}

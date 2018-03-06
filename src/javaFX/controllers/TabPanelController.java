@@ -21,8 +21,6 @@ public class TabPanelController implements Initializable {
     private Tab modelVizBar;
     @FXML
     private Tab modelTestingBar;
-    @FXML
-    private TextArea console;
 
     @FXML
     private ModelCreationController modelCreationController;
