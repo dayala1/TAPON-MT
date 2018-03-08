@@ -154,6 +154,7 @@ public class ModelTestingController implements Initializable {
             series.getData().add(new XYChart.Data("F1", rc.getF1()));
             chart.getData().add(series);
             chart.setLegendVisible(false);
+            chart.setStyle("CHART_COLOR_1: #414487");
             vBox.getChildren().add(chart);
         } else {
             //Global results
@@ -173,6 +174,7 @@ public class ModelTestingController implements Initializable {
             series.getData().add(new XYChart.Data("Macro F1", results.getMacroF1()));
             chart.getData().add(series);
             chart.setLegendVisible(false);
+            chart.setStyle("CHART_COLOR_1: #414487");
             vBox.getChildren().add(chart);
             //Matrix button
             Button matButton = new Button("Similarity matrix");

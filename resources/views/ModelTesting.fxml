@@ -91,11 +91,11 @@
          </children>
       </VBox>
       <TreeView fx:id="resultsTreeView" />
-      <ScrollPane>
+      <ScrollPane fitToWidth="true">
          <content>
-            <VBox fx:id="vBox" spacing="30.0">
+            <VBox fx:id="vBox" alignment="CENTER" spacing="30.0">
                <padding>
-                  <Insets left="20.0" top="20.0" />
+                  <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
                </padding></VBox>
          </content>
       </ScrollPane>
