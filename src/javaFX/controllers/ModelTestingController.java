@@ -12,26 +12,29 @@ import javaFX.EntryPoint;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.chart.BarChart;
-import javafx.scene.chart.CategoryAxis;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Pair;
@@ -111,6 +114,7 @@ public class ModelTestingController implements Initializable {
             MatrixVizController controller = loader.getController();
             controller.setResults(results);
             Stage stage = new Stage();
+            stage.getIcons().setAll(new Image("/icon.png"));
             stage.setTitle("Similarity matrix visualization");
             stage.setScene(scene);
             stage.show();
@@ -138,12 +142,18 @@ public class ModelTestingController implements Initializable {
         vBox.getChildren().clear();
         if(resultsItem.getParent().getValue().startsWith("A") || resultsItem.getParent().getValue().startsWith("R")){
             //Class results
+            Label classLabel = new Label(classString);
+            classLabel.setFont(new Font(25));
+            classLabel.setPadding(new Insets(50,0,50,0));
+            vBox.getChildren().add(classLabel);
             ResultsClass rc = results.getResultsClasses().get(classString);
             vBox.getChildren().add(new Label(rc.toString()));
             CategoryAxis xAxis = new CategoryAxis();
             NumberAxis yAxis = new NumberAxis();
             yAxis.setUpperBound(1.0);
             yAxis.setLowerBound(0.0);
+            yAxis.setTickUnit(0.1);
+            yAxis.setAutoRanging(false);
             BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
             chart.setTitle("Class results");
             xAxis.setLabel("Measure");
@@ -155,14 +165,37 @@ public class ModelTestingController implements Initializable {
             chart.getData().add(series);
             chart.setLegendVisible(false);
             chart.setStyle("CHART_COLOR_1: #414487");
+
+            //Classified as pie chart
+            Map<String, Integer> classifiedAs = results.getConfusionMatrix().row(classString);
+            ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
+                    classifiedAs.entrySet().stream()
+                            .filter(e->e.getValue()>0)
+                            .sorted(Comparator.comparing(Map.Entry::getValue))
+                            .map(e->new PieChart.Data(e.getKey()+" ("+e.getValue()+")", e.getValue()))
+                            .collect(Collectors.toList())
+            );
+
+            PieChart chart2 = new PieChart(pieChartData);
+            chart2.setLabelsVisible(false);
             vBox.getChildren().add(chart);
+            Label chart2Label = new Label("How instances were classified");
+            chart2Label.setPadding(new Insets(20,0,0,0));
+            chart2Label.setFont(new Font(20));
+            vBox.getChildren().add(chart2Label);
+            vBox.getChildren().add(chart2);
+
         } else {
             //Global results
-            vBox.getChildren().add(new Label(results.toString()));
+            System.out.println(results.toString());
+            Label resultsLabel = new Label(results.toString());
+            vBox.getChildren().add(resultsLabel);
             CategoryAxis xAxis = new CategoryAxis();
             NumberAxis yAxis = new NumberAxis();
             yAxis.setUpperBound(1.0);
             yAxis.setLowerBound(0.0);
+            yAxis.setTickUnit(0.1);
+            yAxis.setAutoRanging(false);
             BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
             chart.setTitle("Global results");
             xAxis.setLabel("Measure");
@@ -357,6 +390,7 @@ public class ModelTestingController implements Initializable {
                     Scene scene = new Scene(root);
                     ModelTestingProgressController controller = loader.getController();
                     Stage stage = new Stage();
+                    stage.getIcons().setAll(new Image("/icon.png"));
                     stage.setTitle("Model testing");
                     stage.setScene(scene);
                     stage.show();

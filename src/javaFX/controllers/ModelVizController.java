@@ -85,6 +85,7 @@ public class ModelVizController implements Initializable{
         treeView.setRoot(new TreeItem<>("Domains"));
         treeView.setShowRoot(false);
         File modelsRootFolder = new File(String.format("%s/classifiersAndTables", this.modelPath));
+        modelsRootFolder.mkdirs();
         for (File domainsFolder : modelsRootFolder.listFiles(File::isDirectory)) {
             domainItem = new TreeItem<>();
             domainItem.setValue(domainsFolder.getName().replace('_', ' '));

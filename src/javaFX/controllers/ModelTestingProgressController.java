@@ -142,10 +142,14 @@ public class ModelTestingProgressController implements Initializable {
             }
         });
         modelHandler = new ModelHandlerRandomForest();
+        System.out.println("Creating context");
         modelHandler.createNewContext();
+        System.out.println("Setting folders");
         modelHandler.setClassifiersRootFolder(modelRoot);
         modelHandler.setTablesRootFolder(tablesRoot);
+        System.out.println("Loading feature calculators");
         modelHandler.loadFeaturesCalculators();
+        System.out.println("Loading classifiers");
         modelHandler.loadClassifiers();
 
         Platform.runLater(new Runnable() {
@@ -190,6 +194,13 @@ public class ModelTestingProgressController implements Initializable {
         HashSet<String> attributeClasses = new HashSet<>();
         HashSet<String> recordClasses = new HashSet<>();
         ResultsDataset results = new ResultsDataset();
+        /*
+        for(String recordClass : modelHandler.getClassesConfiguration().getRecordClasses()){
+            recordClasses.add(recordClass);
+        }
+        for(String attributeClass : modelHandler.getClassesConfiguration().getAttributeClasses()){
+            recordClasses.add(attributeClass);
+        }*/
         for (Dataset dataset : testingDatasets) {
             updateResults(results, dataset, attributeClasses, recordClasses);
         }

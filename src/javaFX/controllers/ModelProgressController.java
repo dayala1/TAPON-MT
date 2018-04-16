@@ -11,7 +11,10 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import model.randomForest.ModelHandlerRandomForest;
 import org.apache.parquet.Strings;
+import utils.ClockMonitor;
 import utils.DatasetReader;
+import utils.FileUtilsCust;
+
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -71,6 +74,7 @@ public class ModelProgressController implements Initializable {
     }
 
     public void createModelRunnable() throws Exception {
+        ClockMonitor clock;
         List<Dataset> trainingDatasets;
         DatasetReader datasetReader;
         String modelRoot;
@@ -78,7 +82,7 @@ public class ModelProgressController implements Initializable {
         String datasetsPath;
         ModelHandlerRandomForest modelHandler;
 
-
+        clock = new ClockMonitor();
         Preferences pref = Preferences.userNodeForPackage(EntryPoint.class);
         datasetReader = new DatasetReader();
         trainingDatasets = new ArrayList<>();
@@ -161,7 +165,11 @@ public class ModelProgressController implements Initializable {
             }
         });
         //Training the model
+        clock.start();
         modelHandler.trainModel(trainingDatasets, params);
+        clock.stop();
+        FileUtilsCust.createCSV(String.format("%s/classifiersAndTables/%s/%s/modelClassifiers/trainingTime.csv", modelRoot, domainsString, foldsString));
+        FileUtilsCust.addLine(String.format("%s/classifiersAndTables/%s/%s/modelClassifiers/trainingTime.csv", modelRoot, domainsString, foldsString), clock.getCPUTime());
 
         Platform.runLater(new Runnable() {
             @Override

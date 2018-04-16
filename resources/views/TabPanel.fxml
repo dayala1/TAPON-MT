@@ -1,23 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 
-<SplitPane orientation="VERTICAL" prefHeight="720.0" prefWidth="960.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.TabPanelController">
-   <items>
-      <TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="100.0" tabClosingPolicy="UNAVAILABLE">
-        <tabs>
-          <Tab fx:id="modelCreationTab" text="Model Creation">
-            <fx:include fx:id="modelCreationView" source="ModelCreation.fxml" />
-          </Tab>
-          <Tab fx:id="modelVizTab" text="Model Visualization">
-            <fx:include fx:id="modelVizView" source="ModelViz.fxml" />
-          </Tab>
-          <Tab fx:id="modelTestingTab" text="Model Testing">
-            <fx:include fx:id="modelTestingView" source="ModelTesting.fxml" />
-          </Tab>
-        </tabs>
-      </TabPane>
-   </items>
-</SplitPane>
+
+<TabPane fx:id="tabPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="40.0" minWidth="100.0" prefHeight="585.0" prefWidth="960.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.TabPanelController">
+  <tabs>
+    <Tab fx:id="modelCreationTab" text="Model Creation">
+      <fx:include fx:id="modelCreationView" source="ModelCreation.fxml" />
+    </Tab>
+    <Tab fx:id="modelVizTab" text="Model Visualization">
+      <fx:include fx:id="modelVizView" source="ModelViz.fxml" />
+    </Tab>
+    <Tab fx:id="modelTestingTab" text="Model Testing">
+      <fx:include fx:id="modelTestingView" source="ModelTesting.fxml" />
+    </Tab>
+  </tabs>
+</TabPane>

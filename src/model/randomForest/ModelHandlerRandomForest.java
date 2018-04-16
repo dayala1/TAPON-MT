@@ -407,14 +407,18 @@ public class ModelHandlerRandomForest {
 					.setClassesConfiguration(firstDatasetFeaturesCalculator.getClassesConfiguration());
 			sparkHandler.setClassesConfiguration(firstDatasetFeaturesCalculator.getClassesConfiguration());
 			firstDatasetFeaturesCalculator.initialize(false);
+			System.out.println("Storing first features calculator");
 			firstDatasetFeaturesCalculator.store(String.format("%s/firstFeaturesCalculator", tablesRootFolder));
 			secondDatasetFeaturesCalculator.initialize(false);
+			System.out.println("Storing second features calculator");
 			secondDatasetFeaturesCalculator.store(String.format("%s/secondFeaturesCalculator", tablesRootFolder));
 
 			for (Dataset dataset : trainingDatasets) {
 				firstDatasetFeaturesCalculator.setDataset(dataset);
 				firstDatasetFeaturesCalculator.run(String.format("%s/trainingTablesNoHint", tablesRootFolder), true);
+				System.out.println(String.format("Processed dataset %s", dataset));
 			}
+			firstDatasetFeaturesCalculator.closeTablesBuilder();
 		} catch (Exception e) {
 			System.out.println("There was a problem while trying to create the first feature tables: ");
 			e.printStackTrace();
@@ -443,7 +447,9 @@ public class ModelHandlerRandomForest {
 				refineHints(dataset, false);
 				secondDatasetFeaturesCalculator.setDataset(dataset);
 				secondDatasetFeaturesCalculator.run(String.format("%s/trainingTablesHint", tablesRootFolder), true);
+				System.out.println(String.format("Processed dataset %s", dataset));
 			}
+			secondDatasetFeaturesCalculator.closeTablesBuilder();
 
 		} catch (Exception e) {
 			System.out.println("There was a problem while trying to compute the features of datasets");
@@ -475,7 +481,7 @@ public class ModelHandlerRandomForest {
 
 		sparkHandler.setNumTrees(Integer.valueOf(params.getOrDefault("numTrees", "100")));
 		sparkHandler.setMaxBins(Integer.valueOf(params.getOrDefault("maxBins", "32")));
-		sparkHandler.setMaxDepth(Integer.valueOf(params.getOrDefault("maxDepth", "40")));
+		sparkHandler.setMaxDepth(Integer.valueOf(params.getOrDefault("maxDepth", "15")));
 	}
 
 	public void loadFeaturesCalculators() throws IOException, ClassNotFoundException {

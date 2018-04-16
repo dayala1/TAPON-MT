@@ -1,9 +1,5 @@
 package main;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import dataset.Dataset;
 import dataset.Record;
@@ -75,13 +71,12 @@ public class KushmerickTestingDriver {
 		trainingDatasets = new ArrayList<Dataset>();
 		testingDatasets = new ArrayList<Dataset>();
 		modelHandler = new ModelHandlerRandomForestOneIteration();
-		
-		domains = Arrays.copyOfRange(args, 4, args.length);
+		domains = new String[]{"Awards-full"};
 		numberOfDomains = domains.length;
-		classifiersTablesRoot = args[0];
-		resultsRoot = args[1];
-		datasetsRoot = args[2];
-		testingFoldNumber = Integer.valueOf(args[3]);
+		classifiersTablesRoot = "E:/model/KushResults";
+		resultsRoot = "E:/model/KushResults";
+		datasetsRoot = "E:/Documents/US/Tesis";
+		testingFoldNumber = 1;
 		
 		modelHandler.setClassifiersRootFolder(String.format("%s/classifiersAndTables/modelClassifiers/%s-domains/fold-%s", classifiersTablesRoot, numberOfDomains, testingFoldNumber));
 		modelHandler.setTablesRootFolder(String.format("%s/classifiersAndTables/modelTables/%s-domains/fold-%s", classifiersTablesRoot, numberOfDomains, testingFoldNumber));
@@ -96,11 +91,11 @@ public class KushmerickTestingDriver {
 		
 		for (String domain : domains) {
 			for (int i = 1; i < 11; i++) {
-				datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, i);
+				datasetsPath = String.format("%s/datasets/%s/%s",datasetsRoot, domain, i);
 				if (i == testingFoldNumber) {
-					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
-				} else {
 					datasetReader.addDataset(datasetsPath, 1.0, testingDatasets);
+				} else {
+					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
 					trainingDatasetsFolders.add(datasetsPath);
 				}
 			}
@@ -112,23 +107,23 @@ public class KushmerickTestingDriver {
 		modelHandler.setHintsFeaturableFeaturesGroups(hintFeaturableFeaturesGroups);
 		modelHandler.setHintsSlotFeaturesGroups(hintSlotFeaturesGroups);
 		clock.start();
-		modelHandler.trainModel(0.0, trainingDatasets);
+		modelHandler.trainModel(trainingDatasets, new HashMap<>());
 		clock.stop();
-		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
-		FileUtilsCust.addLine(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
+		FileUtilsCust.createCSV(String.format("%s/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
+		FileUtilsCust.addLine(String.format("%s/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
 		modelHandler.createNewContext();
-		
-		clock.start();
+
 		modelHandler.loadClassifiers(false);
+		clock.start();
 		System.out.println("Starting testing");
 		for (Dataset testingDataset : testingDatasets) {
 			modelHandler.refineHintsUnlabelledDataset(testingDataset);
 			checkHints(testingDataset);
-			modelHandler.saveResults(testingDataset, String.format("%s/results/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
+			modelHandler.saveResults(testingDataset, String.format("%s/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
 		}
 		clock.stop();
-		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
-		FileUtilsCust.addLine(String.format("%s/results/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
+		FileUtilsCust.createCSV(String.format("%s/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
+		FileUtilsCust.addLine(String.format("%s/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
 		
 		modelHandler.closeContext();
 	}

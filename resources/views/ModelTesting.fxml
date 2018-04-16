@@ -34,7 +34,7 @@
                   <Insets top="15.0" />
                </padding>
             </StackPane>
-            <Accordion>
+            <Accordion VBox.vgrow="ALWAYS">
               <panes>
                 <TitledPane text="Domains">
                      <content>
@@ -77,7 +77,7 @@
                 </TitledPane>
                 <TitledPane text="Model">
                      <content>
-                        <TreeView fx:id="modelsTreeView" prefHeight="700.0" />
+                        <TreeView fx:id="modelsTreeView" maxHeight="1.7976931348623157E308" prefHeight="700.0" />
                      </content>
                 </TitledPane>
               </panes>

@@ -29,7 +29,7 @@ import utils.DatasetReader;
 import utils.FileUtilsCust;
 
 public class ISITestingDriver {
-	
+
 	public static double incorrect = 0.0;
 	public static double correct = 0.0;
 	public static Integer folderCount = 0;
@@ -38,12 +38,12 @@ public class ISITestingDriver {
 
 	public static void main(String[] args) throws Exception {
 		ClockMonitor clock;
-		
+
 		//MODEL CREATION
 		Dataset dataset;
 		List<String> trainingDatasetsFolders;
 		classExamples = new HashMap<String, List<String>>();
-		
+
 		//MODEL APPLICATION
 		LuceneBasedSTModelHandler typer;
 		List<Dataset> trainingDatasets;
@@ -56,80 +56,80 @@ public class ISITestingDriver {
 		Integer numberOfDomains;
 		String datasetsPath;
 		String resultsPath;
-		
+
 		clock = new ClockMonitor();
 		typer = new LuceneBasedSTModelHandler("1");
 		typer.setModelHandlerEnabled(true);
-		
+
 		//MODEL APPLICATION
 		datasetReader = new DatasetReader();
 		trainingDatasets = new ArrayList<Dataset>();
 		testingDatasets = new ArrayList<Dataset>();
-		
-		domains = Arrays.copyOfRange(args, 4, args.length);
+
+		domains = new String[]{"Awards-full"};
 		numberOfDomains = domains.length;
-		resultsRoot = args[1];
-		datasetsRoot = args[2];
-		testingFoldNumber = Integer.valueOf(args[3]);
-		
+		resultsRoot = "E:/model/ISIResults2";
+		datasetsRoot = "E:/Documents/US/Tesis";
+		testingFoldNumber = 10;
+
 		trainingDatasetsFolders = new ArrayList<String>();
-		
+
 		for (String domain : domains) {
 			for (int i = 1; i < 11; i++) {
-				datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, i);
+				datasetsPath = String.format("%s/datasets/%s/%s",datasetsRoot, domain, i);
 				if (i == testingFoldNumber) {
-					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
-				} else {
 					datasetReader.addDataset(datasetsPath, 1.0, testingDatasets);
+				} else {
+					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
 				}
 			}
 		}
-		
+
 		resultsPath = String.format("%s/results", resultsRoot);
 		clock.start();
 		for (Dataset trainingDataset : trainingDatasets) {
 			indexExamples(trainingDataset, typer);
 		}
 		System.out.println("finished storing examples");
-		typer.setTextualDirectory(String.format("%s/results/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
+		typer.setTextualDirectory(String.format("%s/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
 		for (String examplesClass : classExamples.keySet()) {
 			System.out.println(String.format("indexing examples of class %s", examplesClass));
 			typer.addType(examplesClass, classExamples.get(examplesClass));
 			System.out.println(String.format("Done", examplesClass));
 		}
-		
-		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
-		FileUtilsCust.addLine(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
-		
+
+		FileUtilsCust.createCSV(String.format("%s/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
+		FileUtilsCust.addLine(String.format("%s/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
+
 		clock.start();
 		System.out.println("Starting testing");
 		for (Dataset testingDataset : testingDatasets) {
 			predictClasses(testingDataset, typer);
 			checkHints(testingDataset);
-			saveResults(testingDataset, String.format("%s/results/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
+			saveResults(testingDataset, String.format("%s/%s-domains/fold-%s/1-iterations", resultsPath, numberOfDomains, testingFoldNumber));
 		}
 		clock.stop();
-		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
-		FileUtilsCust.addLine(String.format("%s/results/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
+		FileUtilsCust.createCSV(String.format("%s/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
+		FileUtilsCust.addLine(String.format("%s/%s-domains/fold-%s/1-iterations/applicationTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
 		folderCount = 0;
 	}
-	
+
 	public static void checkHints(Dataset dataset) {
 		assert dataset != null;
 		List<Slot> children;
-		
+
 		children = dataset.getSlots();
 		for (Slot child : children) {
 			checkHints(child);
 		}
 	}
-	
+
 	public static void checkHints(Slot slot) {
 		assert slot != null;
 		List<Slot> children;
-		
+
 		//System.out.println(String.format("Slot of class %s classified as %s", slot.getSlotClass(), slot.getHint()));
-	
+
 		if(slot instanceof Attribute){
 			if(slot.getSlotClass().equals(slot.getHint())) {
 				correct++;
@@ -143,26 +143,26 @@ public class ISITestingDriver {
 			}
 		}
 	}
-	
+
 	public static void indexExamples(Dataset dataset, LuceneBasedSTModelHandler typer) {
 		assert dataset != null;
 		List<Slot> children;
-		
+
 		children = dataset.getSlots();
 		for (Slot child : children) {
 			indexExamples(child, typer);
 		}
 	}
-	
+
 	public static void indexExamples(Slot slot, LuceneBasedSTModelHandler typer) {
 		assert slot != null;
 		List<Slot> children;
 		String slotClass;
 		String textualValue;
 		List<String> examples;
-		
+
 		//System.out.println(String.format("Slot of class %s classified as %s", slot.getSlotClass(), slot.getHint()));
-		
+
 		if (slot instanceof Record) {
 			children = ((Record)slot).getSlots();
 			for (Slot child : children) {
@@ -181,29 +181,29 @@ public class ISITestingDriver {
 			System.out.println("Indexed an example");
 		}
 	}
-	
+
 	public static void predictClasses(Dataset dataset, LuceneBasedSTModelHandler typer) {
 		assert dataset != null;
 		List<Slot> children;
-		
+
 		children = dataset.getSlots();
 		for (Slot child : children) {
 			predictClasses(child, typer);
 		}
 	}
-	
+
 	public static void predictClasses(Slot slot, LuceneBasedSTModelHandler typer) {
 		assert slot != null;
-		
+
 		String predictedClass;
 		List<Slot> children;
 		String slotClass;
 		String textualValue;
 		List<String> examples;
 		List<SemanticTypeLabel> predictions;
-		
+
 		//System.out.println(String.format("Slot of class %s classified as %s", slot.getSlotClass(), slot.getHint()));
-		
+
 		if (slot instanceof Record) {
 			children = ((Record)slot).getSlots();
 			for (Slot child : children) {
@@ -227,11 +227,11 @@ public class ISITestingDriver {
 			slot.setHint(predictedClass);
 		}
 	}
-	
+
 	public static void saveResults(Dataset dataset, String rootPath) throws IOException {
 		assert dataset != null;
 		assert rootPath != null;
-		
+
 		JSONObject trueLabels;
 		JSONObject inferedLabels;
 		JSONObject bothLabels;
@@ -244,21 +244,21 @@ public class ISITestingDriver {
 		JsonParser jsonParser;
 		JsonWriter jsonWriter;
 		File file;
-		
+
 		trueLabels = new JSONObject();
 		inferedLabels = new JSONObject();
 		bothLabels = new JSONObject();
 		inferedArray = new JSONArray();
 		trueArray = new JSONArray();
 		bothArray = new JSONArray();
-		
+
 		for (Slot slot : dataset.getSlots()) {
 			saveResults(slot, trueArray, inferedArray, bothArray);
 		}
 		trueLabels.put("children", trueArray);
 		inferedLabels.put("children", inferedArray);
 		bothLabels.put("children", bothArray);
-		
+
 		file = new File(String.format("%s/%s", rootPath, folderCount));
 		file.mkdirs();
 		gson = new GsonBuilder().setPrettyPrinting().create();
@@ -283,16 +283,16 @@ public class ISITestingDriver {
 		jsonParser = new JsonParser();
 		gson.toJson(jsonParser.parse(bothLabels.toJSONString()), jsonWriter);
 		jsonWriter.close();
-		
+
 		folderCount++;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	private static void saveResults(Slot slot, JSONArray trueLabels, JSONArray inferedLabels, JSONArray bothLabels) {
 		assert slot != null;
 		assert trueLabels != null;
 		assert inferedLabels != null;
-		
+
 		JSONObject trueChild;
 		JSONObject inferedChild;
 		JSONObject bothChild;
@@ -300,11 +300,11 @@ public class ISITestingDriver {
 		JSONArray trueArray;
 		JSONArray bothArray;
 		List<Slot> children;
-		
+
 		trueChild = new JSONObject();
 		inferedChild = new JSONObject();
 		bothChild = new JSONObject();
-		
+
 		if (slot instanceof Record) {
 			inferedArray = new JSONArray();
 			trueArray = new JSONArray();
@@ -315,7 +315,7 @@ public class ISITestingDriver {
 			}
 			trueChild.put("type", "record");
 			inferedChild.put("type", "record");
-			
+
 			trueChild.put("children", trueArray);
 			inferedChild.put("children", inferedArray);
 			bothChild.put("children", bothArray);
@@ -323,25 +323,25 @@ public class ISITestingDriver {
 			trueChild.put("type", "attribute");
 			inferedChild.put("type", "attribute");
 		}
-		
+
 		trueChild.put("class", slot.getSlotClass());
 		inferedChild.put("class", slot.getHint());
 		bothChild.put("trueClass", slot.getSlotClass());
 		bothChild.put("inferedClass", slot.getHint());
-		
+
 		trueChild.put("id", slot.getName());
 		inferedChild.put("id", slot.getName());
 		bothChild.put("id", slot.getName());
-		
+
 		trueLabels.add(trueChild);
 		inferedLabels.add(inferedChild);
 		bothLabels.add(bothChild);
 	}
-	
+
 	public static void saveResultsWithoutArrays(Dataset dataset, String rootPath) throws IOException {
 		assert dataset != null;
 		assert rootPath != null;
-		
+
 		JSONObject trueLabels;
 		JSONObject inferedLabels;
 		FileWriter fileWriter;
@@ -350,14 +350,14 @@ public class ISITestingDriver {
 		JsonParser jsonParser;
 		JsonWriter jsonWriter;
 		File file;
-		
+
 		trueLabels = new JSONObject();
 		inferedLabels = new JSONObject();
-		
+
 		for (Slot slot : dataset.getSlots()) {
 			saveResultsWithoutArrays(slot, trueLabels, inferedLabels);
 		}
-		
+
 		file = new File(String.format("%s/%s", rootPath, folderCount));
 		file.mkdirs();
 		gson = new GsonBuilder().setPrettyPrinting().create();
@@ -375,22 +375,22 @@ public class ISITestingDriver {
 		jsonParser = new JsonParser();
 		gson.toJson(jsonParser.parse(inferedLabels.toJSONString()), jsonWriter);
 		jsonWriter.close();
-		
+
 		folderCount++;
 	}
-	
+
 	private static void saveResultsWithoutArrays(Slot slot, JSONObject trueLabels, JSONObject inferedLabels) {
 		assert slot != null;
 		assert trueLabels != null;
 		assert inferedLabels != null;
-		
+
 		JSONObject trueChild;
 		JSONObject inferedChild;
 		List<Slot> children;
-		
+
 		trueChild = new JSONObject();
 		inferedChild = new JSONObject();
-		
+
 		if (slot instanceof Record) {
 			children = ((Record)slot).getSlots();
 			for (Slot child : children) {
@@ -402,12 +402,12 @@ public class ISITestingDriver {
 			trueChild.put("type", "attribute");
 			inferedChild.put("type", "attribute");
 		}
-		
+
 		trueChild.put("class", slot.getSlotClass());
 		inferedChild.put("class", slot.getHint());
-		
+
 		trueLabels.put(slot.getName(), trueChild);
 		inferedLabels.put(slot.getName(), inferedChild);
 	}
-	
+
 }

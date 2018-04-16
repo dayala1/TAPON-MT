@@ -5,6 +5,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.log4j.Level;
@@ -645,6 +647,8 @@ public class SparkHandlerRandomForest implements Serializable {
 		Vector vector;
 		File classifiersFolderFile;
 		File[] classifiersFiles;
+		FileWriter writer;
+		CSVPrinter csvPrinter;
 		double classification;
 		String line;
 		String elementId;
@@ -658,7 +662,8 @@ public class SparkHandlerRandomForest implements Serializable {
 			newCsvPath = String.format("%s/trainingTablesNoHint/attributes_Multiclass.csv", tablesFolder);
 		}
 
-		FileUtilsCust.createCSV(newCsvPath);
+		writer = new FileWriter(newCsvPath, true);
+		csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
 		csvFile = new File(filePath);
 		if (hints) {
 			classifiersFolderFile = new File(String.format("%s/classifiersHint/attributes", classifiersFolder));
@@ -675,6 +680,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			models.add(model);
 		}
 		classifierNames.add("class");
+		csvPrinter.printRecord(classifierNames);
 		FileUtilsCust.addLine(newCsvPath, classifierNames);
 
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
@@ -705,10 +711,11 @@ public class SparkHandlerRandomForest implements Serializable {
 					featureList.add(String.valueOf(classification));
 				}
 				featureList.add(String.valueOf(slotClassDouble));
-				FileUtilsCust.addLine(newCsvPath, featureList);
+				csvPrinter.printRecord(featureList);
 				System.out.println(String.format("Added line: %s", featureList));
 			}
 		}
+		csvPrinter.close();
 
 		// Records
 		if (hints) {
@@ -718,7 +725,8 @@ public class SparkHandlerRandomForest implements Serializable {
 			filePath = String.format("%s/trainingTablesNoHint/records.csv", tablesFolder);
 			newCsvPath = String.format("%s/trainingTablesNoHint/records_Multiclass.csv", tablesFolder);
 		}
-		FileUtilsCust.createCSV(newCsvPath);
+		writer = new FileWriter(newCsvPath, true);
+		csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withRecordSeparator("\n"));
 		csvFile = new File(filePath);
 		if (hints) {
 			classifiersFolderFile = new File(String.format("%s/classifiersHint/records", classifiersFolder));
@@ -735,7 +743,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			models.add(model);
 		}
 		classifierNames.add("class");
-		FileUtilsCust.addLine(newCsvPath, classifierNames);
+		csvPrinter.printRecord(classifierNames);
 		try (BufferedReader br = new BufferedReader(new FileReader(csvFile))) {
 			br.readLine();
 			while ((line = br.readLine()) != null) {
@@ -761,10 +769,11 @@ public class SparkHandlerRandomForest implements Serializable {
 					featureList.add(String.valueOf(classification));
 				}
 				featureList.add(String.valueOf(slotClassDouble));
-				FileUtilsCust.addLine(newCsvPath, featureList);
+				csvPrinter.printRecord(featureList);
 				System.out.println(String.format("Added line: %s", featureList));
 			}
 		}
+		csvPrinter.close();
 
 	}
 

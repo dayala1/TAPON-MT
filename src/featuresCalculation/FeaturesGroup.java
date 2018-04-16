@@ -1,5 +1,7 @@
 package featuresCalculation;
 
+import utils.ClockMonitor;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Collections;
@@ -82,12 +84,10 @@ public abstract class FeaturesGroup<T extends Featurable> implements Serializabl
 		FeatureValue featureValue;
 		
 		result = new FeaturesVector();
-		
 		for (Feature<T> feature : features) {
 			featureValue = feature.apply(featurable);
 			result.addFeatureValue(featureValue);
 		}
-		
 		return result;
 	}
 	

@@ -334,13 +334,19 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 	}
 
 	public void store(String objectPath) throws IOException {
-		FileOutputStream fileOutputStream;
-		ObjectOutputStream objectOutputStream;
+		try {
+			FileOutputStream fileOutputStream;
+			ObjectOutputStream objectOutputStream;
 
-		fileOutputStream = new FileOutputStream(objectPath);
-		objectOutputStream = new ObjectOutputStream(fileOutputStream);
-		objectOutputStream.writeObject(this);
-		objectOutputStream.close();
+			fileOutputStream = new FileOutputStream(objectPath);
+			objectOutputStream = new ObjectOutputStream(fileOutputStream);
+			objectOutputStream.writeObject(this);
+			objectOutputStream.close();
+		}catch (IOException e){
+			System.out.println("Problem while trying to store the features calculator: ");
+			e.printStackTrace();
+			throw e;
+		}
 	}
 
 	public void run(String outputFolder, boolean createTables) throws IOException, ParseException {
@@ -409,7 +415,7 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 		if (createTables) {
 			builder.initialize(outputFolder, datasetFeatures, recordFeatures, attributeFeatures);
 			for (Featurable featurable : featurables) {
-				System.out.println("\n" + featurable);
+				//System.out.println("\n" + featurable);
 				/*
 				 * for(FeatureValue featureValue :
 				 * featurable.getFeaturesVector().getFeatureValues().values()){
@@ -435,6 +441,10 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 			}
 		}
 
+	}
+
+	public void closeTablesBuilder() throws IOException {
+		builder.closeWriters();
 	}
 
 	// Ancillary methods----------------------------------------------

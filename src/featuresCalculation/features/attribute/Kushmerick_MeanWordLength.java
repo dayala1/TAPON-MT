@@ -32,14 +32,18 @@ public class Kushmerick_MeanWordLength extends Feature<Attribute> {
 		totalWordLength = 0.0;
 		attributeValue = attribute.getValue();
 		attributeValue = StringUtils.removeAccents(attributeValue);
-		pattern = Pattern.compile("\\b\\.+\\b");
+		pattern = Pattern.compile("\\b\\w+\\b");
 		matcher = pattern.matcher(attributeValue);
 		value = 0.0;
 		while(matcher.find()){
 			totalWordLength += matcher.group().length();
 			numWords += 1.0;
 		}
-		value = totalWordLength/numWords;
+		if(numWords>0){
+			value = totalWordLength/numWords;
+		} else{
+			value = 0.0;
+		}
 		result = new FeatureValue();
 		result.setFeature(this);
 		result.setValue(value);

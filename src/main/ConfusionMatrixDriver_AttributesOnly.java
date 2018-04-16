@@ -21,7 +21,7 @@ import jersey.repackaged.com.google.common.collect.Sets;
 import utils.FileUtilsCust;
 
 public class ConfusionMatrixDriver_AttributesOnly {
-	
+
 	private static Table<String, String, Integer> confusionMatrix;
 	private static Integer numSlots;
 
@@ -53,9 +53,9 @@ public class ConfusionMatrixDriver_AttributesOnly {
 		Double totalPrecision;
 		Double totalRecall;
 		Double numClasses;
-		
-		datasetsRootPath = "C:/Users/Boss/Documents/KushmerickTesting/results/results/10-domains";
-		classesPath = "C:/Users/Boss/Documents/GBCTWithTime/classifiersAndTables/modelTables/10-domains/fold-8/classes.json";
+
+		datasetsRootPath = "E:/model/KushResults/results/1-domains";
+		classesPath = "E:/model/ISIResults/classesISI.json";
 		slotClasses = Sets.newHashSet();
 		addClasses(slotClasses, classesPath);
 		slotClasses.add("none");
@@ -66,7 +66,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 		header = Lists.newArrayList();
 		header.add("TECH");
 		numSlots = 0;
-		for(int j = 2; j <= 2; j++) {
+		for(int j = 1; j <= 10; j++) {
 			for (int i = 1; i <= maxNumIterations; i++) {
 				row = Lists.newArrayList();
 				row.add(String.format("%s-iterations", i));
@@ -143,7 +143,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 				//System.out.println((totalTP)/(totalTP+totalFN));
 				//AUC-ROC
 				//System.out.println(0.5*(1+(totalTP/(totalTP+totalFN))-(totalFP/(totalFP+totalTN))));
-				
+
 				//Precision (macro)
 				//System.out.println(totalPrecision/numClasses);
 				row.add(Double.toString(totalPrecision/numClasses));
@@ -153,7 +153,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 				//System.out.println("----");
 				rows.add(row);
 			}
-			
+
 		}
 		for (String	slotClass : slotClasses) {
 			header.add(String.format("%s-PRECISION", slotClass));
@@ -169,37 +169,37 @@ public class ConfusionMatrixDriver_AttributesOnly {
 		}
 		printConfusionMatrix();
 	}
-	
+
 	public static void processJSONObject(JSONObject jsonObject) throws FileNotFoundException, IOException {
 		assert jsonObject != null;
-		
+
 		JSONArray children;
 		JSONObject child;
 		Slot slot;
-		
+
 		children = (JSONArray)jsonObject.get("children");
 		for (int i = 0; i < children.size(); i++) {
 			child = (JSONObject)children.get(i);
 			processJSONObjectSlot(child);
 		}
 	}
-	
+
 	public static void processJSONObjectSlot(JSONObject jsonObject) throws FileNotFoundException, IOException {
 		assert jsonObject != null;
-		
+
 		String trueClass;
 		String inferedClass;
 		JSONArray children;
 		JSONObject child;
 		Integer matrixValue;
-		
+
 		if (!jsonObject.containsKey("children")) {
 			trueClass = (String)jsonObject.get("trueClass");
 			inferedClass = (String)jsonObject.get("inferedClass");
 			if(inferedClass.length()<2){
 				inferedClass="none";
 			}
-			
+
 			if (confusionMatrix.contains(trueClass, inferedClass)) {
 				matrixValue = confusionMatrix.get(trueClass, inferedClass);
 			} else {
@@ -208,7 +208,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 			matrixValue++;
 			confusionMatrix.put(trueClass, inferedClass, matrixValue);
 		}
-		
+
 		if (jsonObject.containsKey("children")) {
 			children = (JSONArray)jsonObject.get("children");
 			for (int i = 0; i < children.size(); i++) {
@@ -218,28 +218,28 @@ public class ConfusionMatrixDriver_AttributesOnly {
 		}
 		numSlots++;
 	}
-	
+
 	public static void addClasses(Set<String> emptyClasses, String classesFilePath) throws IOException, ParseException {
 		assert classesFilePath != null;
-		
+
 		JSONParser jsonParser;
 		File classesFile;
 		FileReader fileReader;
 		JSONObject jsonObject;
 		List<String> recordClasses;
 		List<String> attributeClasses;
-		
+
 		jsonParser = new JSONParser();
 		classesFile = new File(String.format("%s", classesFilePath));
 		fileReader = new FileReader(classesFile);
 		jsonObject = (JSONObject)jsonParser.parse(fileReader);
 		recordClasses = (List<String>)jsonObject.get("recordClasses");
 		attributeClasses = (List<String>)jsonObject.get("attributeClasses");
-		
+
 		emptyClasses.addAll(attributeClasses);
 		//emptyClasses.addAll(recordClasses);
 	}
-	
+
 	public static void printConfusionMatrix(){
 		String reducedClass;
 		System.out.print(String.format("%16s╔", ""));
@@ -247,7 +247,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 			System.out.print("════════════════╦");
 		}
 		System.out.print("════════════════╗");
-		
+
 		System.out.print("\n");
 		System.out.print(String.format("%16s║", ""));
 		for (String matrixClass : confusionMatrix.rowKeySet()) {
@@ -259,7 +259,7 @@ public class ConfusionMatrixDriver_AttributesOnly {
 			System.out.print(String.format("%16s║", reducedClass));
 		}
 		System.out.print("\n");
-		
+
 		for (String matrixClass : confusionMatrix.rowKeySet()) {
 			System.out.print("╠═══════════════");
 			for (int i = 0; i < confusionMatrix.rowKeySet().size(); i++) {

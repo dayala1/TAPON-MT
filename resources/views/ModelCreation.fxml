@@ -11,145 +11,105 @@
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane prefHeight="567.0" prefWidth="960.0" stylesheets="style.css" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.ModelCreationController">
+<GridPane hgap="15.0" prefHeight="705.0" prefWidth="939.0" snapToPixel="false" stylesheets="@../style.css" vgap="15.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="javaFX.controllers.ModelCreationController">
+  <columnConstraints>
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+  </columnConstraints>
+  <rowConstraints>
+    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="183.0" vgrow="ALWAYS" />
+    <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" prefHeight="214.0" vgrow="ALWAYS" />
+      <RowConstraints maxHeight="72.0" minHeight="0.0" prefHeight="60.0" vgrow="NEVER" />
+  </rowConstraints>
    <children>
-      <VBox layoutX="29.0" layoutY="26.0" spacing="27.0">
+      <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0">
          <children>
-            <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0">
+            <HBox>
                <children>
-                  <HBox>
-                     <children>
-                        <Label styleClass="fieldLabel" text="Domains:">
-                           <tooltip>
-                              <Tooltip prefWidth="150.0" text="These are the domains that will be used to train the model. Each domain corresponds to a folder that should contain 10 folders (named 1, 2, 3...) with dataset json files." wrapText="true" />
-                           </tooltip>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <TableView fx:id="tableDomains" prefHeight="466.0" prefWidth="183.0">
-                    <columns>
-                      <TableColumn fx:id="domainNames" prefWidth="259.0" text="Domain name" />
-                      <TableColumn fx:id="domainSelected" prefWidth="51.0" text="include" />
-                    </columns>
-                  </TableView>
+                  <Label styleClass="fieldLabel" text="Domains:">
+                     <tooltip>
+                        <Tooltip prefWidth="150.0" text="These are the domains that will be used to train the model. Each domain corresponds to a folder that should contain 10 folders (named 1, 2, 3...) with dataset json files." wrapText="true" />
+                     </tooltip>
+                  </Label>
                </children>
-            </VBox>
-            <TitledPane collapsible="false" prefHeight="179.0" prefWidth="311.0" text="Domain details">
+            </HBox>
+            <TableView fx:id="tableDomains">
+              <columns>
+                <TableColumn fx:id="domainNames" prefWidth="228.0" text="Domain name" />
+                <TableColumn fx:id="domainSelected" prefWidth="82.0" text="include" />
+              </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <AnchorPane GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+         <GridPane.margin>
+            <Insets top="25.0" />
+         </GridPane.margin>
+         <children>
+            <TitledPane collapsible="false" text="Domain details" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <content>
-                  <ScrollPane prefHeight="200.0" prefWidth="200.0">
+                  <ScrollPane>
                      <content>
                         <VBox fx:id="domainDetails" spacing="5.0">
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding></VBox>
+                           </padding>
+                        </VBox>
                      </content>
                   </ScrollPane>
                </content>
             </TitledPane>
          </children>
-      </VBox>
-      <VBox layoutX="619.0" layoutY="26.0">
+      </AnchorPane>
+      <AnchorPane GridPane.columnIndex="1">
+         <GridPane.margin>
+            <Insets top="25.0" />
+         </GridPane.margin>
          <children>
-            <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0">
-               <children>
-                  <HBox>
-                     <children>
-                        <Label styleClass="fieldLabel" text="Hint-free feature groups:">
-                           <tooltip>
-                              <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-free phase. Some of these groups may include many related features, while others, only one." wrapText="true" />
-                           </tooltip>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <TableView fx:id="tableFeatures" prefHeight="239.0" prefWidth="311.0">
-                     <columns>
-                        <TableColumn fx:id="featureNames" prefWidth="196.0" text="Name" />
-                        <TableColumn fx:id="featureTypes" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
-                        <TableColumn fx:id="featureSelected" prefWidth="50.0" text="Use" />
-                     </columns>
-                  </TableView>
-               </children>
-            </VBox>
-            <VBox prefHeight="206.0" prefWidth="311.0" spacing="10.0">
-               <children>
-                  <HBox>
-                     <children>
-                        <Label styleClass="fieldLabel" text="Hint-based feature groups:">
-                           <tooltip>
-                              <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-based phase, in addition to the hint-free ones. Some of these groups may include many related features, while others, only one." wrapText="true" />
-                           </tooltip>
-                        </Label>
-                     </children>
-                  </HBox>
-                  <TableView fx:id="tableFeaturesHB" prefHeight="205.0" prefWidth="311.0">
-                     <columns>
-                        <TableColumn fx:id="featureNamesHB" prefWidth="196.0" text="Name" />
-                        <TableColumn fx:id="featureTypesHB" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
-                        <TableColumn fx:id="featureSelectedHB" prefWidth="50.0" text="Use" />
-                     </columns>
-                  </TableView>
-               </children>
-            </VBox>
-         </children>
-      </VBox>
-      <VBox layoutX="364.0" layoutY="53.0" spacing="27.0">
-         <children>
-            <TitledPane animated="false" collapsible="false" prefHeight="217.0" prefWidth="227.0">
+            <TitledPane animated="false" collapsible="false" minHeight="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="289.0" prefWidth="350.0">
+                  <VBox spacing="15.0">
                      <children>
-                        <VBox layoutX="26.0" layoutY="-34.0" prefHeight="180.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <VBox VBox.vgrow="ALWAYS">
                            <children>
-                              <VBox prefWidth="100.0">
-                                 <children>
-                                    <HBox prefHeight="100.0" prefWidth="200.0">
-                                       <children>
-                                          <Label text="Number of trees">
-                                             <tooltip>
-                                                <Tooltip prefWidth="150.0" text="The number of trees for the random forest classifier. Increasing the number of trees increases its performance, since the final decision is based in more votes. However, incresing this paramenter linearly increases training and application time." wrapText="true" />
-                                             </tooltip>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Slider fx:id="numTrees" blockIncrement="25.0" max="150.0" showTickLabels="true" showTickMarks="true" value="50.0" />
-                                 </children>
-                              </VBox>
-                              <VBox prefWidth="100.0">
-                                 <children>
-                                    <HBox prefHeight="100.0" prefWidth="200.0">
-                                       <children>
-                                          <Label text="Maximum number of bins">
-                                             <tooltip>
-                                                <Tooltip prefWidth="150.0" text="Maximum number of bins used when discretizing continuous features. Increasing the number of bins allows the classifier to make fine-grained split decisions, but increases the training time." wrapText="true" />
-                                             </tooltip>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Slider fx:id="maxBins" blockIncrement="8.0" majorTickUnit="8.0" max="64.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="32.0" />
-                                 </children>
-                              </VBox>
-                              <VBox prefWidth="100.0">
-                                 <children>
-                                    <HBox prefHeight="100.0" prefWidth="200.0">
-                                       <children>
-                                          <Label text="Maximum tree depth">
-                                             <tooltip>
-                                                <Tooltip prefWidth="150.0" text="The maximum depth of the decision trees. More depth allows the algorithm to obtain more complex rules that take more features into account. A lower number, however, can help avoid overfitting." wrapText="true" />
-                                             </tooltip>
-                                          </Label>
-                                       </children>
-                                    </HBox>
-                                    <Slider fx:id="maxDepth" blockIncrement="1.0" majorTickUnit="5.0" max="30.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="20.0" />
-                                 </children>
-                              </VBox>
+                              <Label text="Number of trees">
+                                 <tooltip>
+                                    <Tooltip prefWidth="150.0" text="The number of trees for the random forest classifier. Increasing the number of trees increases its performance, since the final decision is based in more votes. However, incresing this paramenter linearly increases training and application time." wrapText="true" />
+                                 </tooltip>
+                              </Label>
+                              <Slider fx:id="numTrees" blockIncrement="25.0" max="150.0" showTickLabels="true" showTickMarks="true" value="50.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                        <VBox VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="Maximum number of bins">
+                                 <tooltip>
+                                    <Tooltip prefWidth="150.0" text="Maximum number of bins used when discretizing continuous features. Increasing the number of bins allows the classifier to make fine-grained split decisions, but increases the training time." wrapText="true" />
+                                 </tooltip>
+                              </Label>
+                              <Slider fx:id="maxBins" blockIncrement="8.0" majorTickUnit="8.0" max="64.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="32.0" VBox.vgrow="ALWAYS" />
+                           </children>
+                        </VBox>
+                        <VBox VBox.vgrow="ALWAYS">
+                           <children>
+                              <Label text="Maximum tree depth">
+                                 <tooltip>
+                                    <Tooltip prefWidth="150.0" text="The maximum depth of the decision trees. More depth allows the algorithm to obtain more complex rules that take more features into account. A lower number, however, can help avoid overfitting." wrapText="true" />
+                                 </tooltip>
+                              </Label>
+                              <Slider fx:id="maxDepth" blockIncrement="1.0" majorTickUnit="5.0" max="30.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" value="20.0" VBox.vgrow="ALWAYS" />
                            </children>
                         </VBox>
                      </children>
-                  </AnchorPane>
+                  </VBox>
               </content>
                <graphic>
                   <Label styleClass="fieldLabel" text="Classifier settings">
@@ -159,38 +119,38 @@
                   </Label>
                </graphic>
             </TitledPane>
-            <TitledPane animated="false" collapsible="false" prefHeight="179.0" prefWidth="227.0">
+         </children>
+      </AnchorPane>
+      <AnchorPane GridPane.columnIndex="1" GridPane.rowIndex="1">
+         <children>
+            <TitledPane animated="false" collapsible="false" minHeight="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                <content>
-                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="153.0" prefWidth="226.0">
+                  <VBox alignment="CENTER">
                      <children>
-                        <VBox alignment="CENTER" layoutX="26.0" layoutY="-34.0" prefHeight="180.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
                            <children>
-                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0">
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
                                  <children>
-                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                                       <children>
-                                          <CheckBox fx:id="fold1" mnemonicParsing="false" selected="true" text="1" />
-                                          <CheckBox fx:id="fold2" mnemonicParsing="false" selected="true" text="2" />
-                                          <CheckBox fx:id="fold3" mnemonicParsing="false" selected="true" text="3" />
-                                          <CheckBox fx:id="fold4" mnemonicParsing="false" selected="true" text="4" />
-                                          <CheckBox fx:id="fold5" mnemonicParsing="false" selected="true" text="5" />
-                                       </children>
-                                    </VBox>
-                                    <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
-                                       <children>
-                                          <CheckBox fx:id="fold6" mnemonicParsing="false" selected="true" text="6" />
-                                          <CheckBox fx:id="fold7" mnemonicParsing="false" selected="true" text="7" />
-                                          <CheckBox fx:id="fold8" mnemonicParsing="false" selected="true" text="8" />
-                                          <CheckBox fx:id="fold9" mnemonicParsing="false" selected="true" text="9" />
-                                          <CheckBox fx:id="fold10" mnemonicParsing="false" selected="true" text="10" />
-                                       </children>
-                                    </VBox>
+                                    <CheckBox fx:id="fold1" mnemonicParsing="false" selected="true" text="1" />
+                                    <CheckBox fx:id="fold2" mnemonicParsing="false" selected="true" text="2" />
+                                    <CheckBox fx:id="fold3" mnemonicParsing="false" selected="true" text="3" />
+                                    <CheckBox fx:id="fold4" mnemonicParsing="false" selected="true" text="4" />
+                                    <CheckBox fx:id="fold5" mnemonicParsing="false" selected="true" text="5" />
                                  </children>
-                              </HBox>
+                              </VBox>
+                              <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" spacing="10.0">
+                                 <children>
+                                    <CheckBox fx:id="fold6" mnemonicParsing="false" selected="true" text="6" />
+                                    <CheckBox fx:id="fold7" mnemonicParsing="false" selected="true" text="7" />
+                                    <CheckBox fx:id="fold8" mnemonicParsing="false" selected="true" text="8" />
+                                    <CheckBox fx:id="fold9" mnemonicParsing="false" selected="true" text="9" />
+                                    <CheckBox fx:id="fold10" mnemonicParsing="false" selected="true" text="10" />
+                                 </children>
+                              </VBox>
                            </children>
-                        </VBox>
+                        </HBox>
                      </children>
-                  </AnchorPane>
+                  </VBox>
                </content>
                <tooltip>
                   <Tooltip prefWidth="150.0" text="These are the folds that will be used to train the model. It is recommended to leave some folds unselected in order to use them for testing." wrapText="true" />
@@ -202,13 +162,59 @@
                      </tooltip>
                   </Label>
                </graphic>
+               <padding>
+                  <Insets top="25.0" />
+               </padding>
             </TitledPane>
          </children>
+      </AnchorPane>
+      <VBox prefHeight="244.0" prefWidth="311.0" spacing="10.0" GridPane.columnIndex="2">
+         <children>
+            <HBox>
+               <children>
+                  <Label styleClass="fieldLabel" text="Hint-free feature groups:">
+                     <tooltip>
+                        <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-free phase. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                     </tooltip>
+                  </Label>
+               </children>
+            </HBox>
+            <TableView fx:id="tableFeatures">
+               <columns>
+                  <TableColumn fx:id="featureNames" prefWidth="196.0" text="Name" />
+                  <TableColumn fx:id="featureTypes" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
+                  <TableColumn fx:id="featureSelected" prefWidth="50.0" text="Use" />
+               </columns>
+            </TableView>
+         </children>
       </VBox>
-      <Button fx:id="createModelButton" defaultButton="true" layoutX="348.0" layoutY="495.0" mnemonicParsing="false" onAction="#createModel" prefHeight="40.0" prefWidth="264.0" text="Create Model">
+      <VBox prefHeight="206.0" prefWidth="311.0" spacing="10.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+         <children>
+            <HBox>
+               <children>
+                  <Label styleClass="fieldLabel" text="Hint-based feature groups:">
+                     <tooltip>
+                        <Tooltip prefWidth="150.0" text="The features groups that will be computed in the hint-based phase, in addition to the hint-free ones. Some of these groups may include many related features, while others, only one." wrapText="true" />
+                     </tooltip>
+                  </Label>
+               </children>
+            </HBox>
+            <TableView fx:id="tableFeaturesHB">
+               <columns>
+                  <TableColumn fx:id="featureNamesHB" prefWidth="196.0" text="Name" />
+                  <TableColumn fx:id="featureTypesHB" minWidth="0.0" prefWidth="64.0" styleClass="typeColumn" text="Type" />
+                  <TableColumn fx:id="featureSelectedHB" prefWidth="50.0" text="Use" />
+               </columns>
+            </TableView>
+         </children>
+      </VBox>
+      <Button fx:id="createModelButton" defaultButton="true" mnemonicParsing="false" onAction="#createModel" prefHeight="39.0" prefWidth="273.0" text="Create Model" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
          <font>
             <Font size="18.0" />
          </font>
       </Button>
    </children>
-</AnchorPane>
+   <padding>
+      <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+   </padding>
+</GridPane>

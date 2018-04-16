@@ -36,6 +36,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellDataFeatures;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -594,6 +595,7 @@ public class ModelCreationController implements Initializable {
 					ModelProgressController controller = loader.getController();
 					Stage stage = new Stage();
 					stage.setTitle("Model creation");
+					stage.getIcons().setAll(new Image("/icon.png"));
 					stage.setScene(scene);
 					stage.show();
 					controller.createModel(foldsMap, tableDomains, params, slotFeaturesGroups, hintSlotFeaturesGroups, featurableFeaturesGroups, hintFeaturableFeaturesGroups);

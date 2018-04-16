@@ -1,9 +1,5 @@
 package main;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import dataset.Dataset;
 import dataset.Record;
@@ -108,7 +104,7 @@ public class NgongaTestingDriver {
 		modelHandler.setHintsFeaturableFeaturesGroups(hintFeaturableFeaturesGroups);
 		modelHandler.setHintsSlotFeaturesGroups(hintSlotFeaturesGroups);
 		clock.start();
-		modelHandler.trainModel(0.0, trainingDatasets);
+		modelHandler.trainModel(trainingDatasets, new HashMap<>());
 		clock.stop();
 		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber));
 		FileUtilsCust.addLine(String.format("%s/results/%s-domains/fold-%s/trainingTime.csv", resultsPath, numberOfDomains, testingFoldNumber), clock.getCPUTime());
