@@ -1,10 +1,11 @@
 package model.randomForest;
 
-import java.io.*;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
+import dataset.Attribute;
+import dataset.Record;
+import dataset.Slot;
+import featuresCalculation.ClassesConfiguration;
+import featuresCalculation.FeaturesVector;
+import jersey.repackaged.com.google.common.collect.Lists;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.ArrayUtils;
@@ -16,10 +17,7 @@ import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.ml.classification.MultilayerPerceptronClassificationModel;
-import org.apache.spark.ml.classification.MultilayerPerceptronClassifier;
-import org.apache.spark.ml.classification.RandomForestClassificationModel;
-import org.apache.spark.ml.classification.RandomForestClassifier;
+import org.apache.spark.ml.classification.*;
 import org.apache.spark.ml.linalg.Vector;
 import org.apache.spark.ml.linalg.VectorUDT;
 import org.apache.spark.ml.linalg.Vectors;
@@ -31,44 +29,48 @@ import org.apache.spark.sql.types.DataTypes;
 import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.json.simple.parser.ParseException;
-
-import dataset.Attribute;
-import dataset.Record;
-import dataset.Slot;
-import featuresCalculation.ClassesConfiguration;
-import featuresCalculation.FeaturesVector;
-import jersey.repackaged.com.google.common.collect.Lists;
 import utils.FileUtilsCust;
 import utils.RandomForestParsing.RandomForestParser;
 import utils.RandomForestParsing.Tree;
 
-public class SparkHandlerRandomForest implements Serializable {
-	private static final long serialVersionUID = 4424575592980018563L;
+import java.io.*;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
+
+public abstract class SparkHandler implements Serializable {
+	protected static final long serialVersionUID = 4424575592980018563L;
 
 	// Constructors---------------------------------------------------
-	public SparkHandlerRandomForest(){
+	public SparkHandler(){
 		this.featureNamesAttributesHF = new HashMap<>();
 		this.featureNamesAttributesHB = new HashMap<>();
 		this.featureNamesRecordsHF = new HashMap<>();
 		this.featureNamesRecordsHB = new HashMap<>();
+		params = new HashMap<>();
 	}
 
 	// Properties-----------------------------------------------------
-	private String tablesFolder;
-	private String classifiersFolder;
-	private String classesFilePath;
-	private Integer numberOfFeatures;
+	protected String tablesFolder;
+	protected String classifiersFolder;
+	protected String classesFilePath;
+	protected Integer numberOfFeatures;
 	// no default. Using 40
-	private Integer maxDepth;
-	// default = 32
-	private Integer maxBins;
 	// More trees +quality and +time. Using 100
-	private Integer numTrees;
-	private ClassesConfiguration classesConfiguration;
-	private Map<Integer, String> featureNamesAttributesHF;
-	private Map<Integer, String> featureNamesAttributesHB;
-	private Map<Integer, String> featureNamesRecordsHF;
-	private Map<Integer, String> featureNamesRecordsHB;
+	protected ClassesConfiguration classesConfiguration;
+	protected Map<Integer, String> featureNamesAttributesHF;
+	protected Map<Integer, String> featureNamesAttributesHB;
+	protected Map<Integer, String> featureNamesRecordsHF;
+	protected Map<Integer, String> featureNamesRecordsHB;
+	protected Map<String, String> params;
+
+	public void setParam(String param, String value){
+		params.put(param, value);
+	}
+
+	public String getParam(String param){
+		return params.get(param);
+	}
 
 	public Map<Integer, String> getFeatureNamesAttributesHF() {
 		return featureNamesAttributesHF;
@@ -86,23 +88,19 @@ public class SparkHandlerRandomForest implements Serializable {
 		return featureNamesRecordsHB;
 	}
 
-	public Integer getMaxDepth() {
-		return maxDepth;
-	}
-
-	public List<ClassifierRandomForest> getAttributeClassifiersHintFree() {
+	public List<Classifier> getAttributeClassifiersHintFree() {
 		return attributeClassifiersHintFree;
 	}
 
-	public List<ClassifierRandomForest> getRecordClassifiersHintFree() {
+	public List<Classifier> getRecordClassifiersHintFree() {
 		return recordClassifiersHintFree;
 	}
 
-	public List<ClassifierRandomForest> getAttributeClassifiersHintBased() {
+	public List<Classifier> getAttributeClassifiersHintBased() {
 		return attributeClassifiersHintBased;
 	}
 
-	public List<ClassifierRandomForest> getRecordClassifiersHintBased() {
+	public List<Classifier> getRecordClassifiersHintBased() {
 		return recordClassifiersHintBased;
 	}
 
@@ -120,36 +118,6 @@ public class SparkHandlerRandomForest implements Serializable {
 
 	public MultilayerPerceptronClassificationModel getRecordMulticlassClassifierHintBased() {
 		return recordMulticlassClassifierHintBased;
-	}
-
-	public void setMaxDepth(Integer maxDepth) {
-		assert maxDepth != null;
-		assert maxDepth > 0;
-
-		this.maxDepth = maxDepth;
-	}
-
-	public Integer getMaxBins() {
-
-		return maxBins;
-	}
-
-	public void setMaxBins(Integer maxBins) {
-		assert maxBins != null;
-		assert maxBins > 0;
-
-		this.maxBins = maxBins;
-	}
-
-	public Integer getNumTrees() {
-		return numTrees;
-	}
-
-	public void setNumTrees(Integer numTrees) {
-		assert numTrees != null;
-		assert numTrees > 0;
-
-		this.numTrees = numTrees;
 	}
 
 	public String getTablesFolder() {
@@ -202,29 +170,22 @@ public class SparkHandlerRandomForest implements Serializable {
 
 	// Internal state-------------------------------------------------
 
-	private final static Level loggerLevel = Level.ERROR;
-	// all these measures have default values, but they can be changed.
-	// "gini" or "entropy"
-	private final static String impurity = "gini";
-	// So far, no justification anywhere... using 0.01
-	private final static Double minInfoGain = 0.01;
-	// Helps with deep trees
-	private final static Boolean useNodeIdCache = true;
+	protected final static Level loggerLevel = Level.ERROR;
 	// Here start the parameters for the multiclass classifier
-	private final Integer numIterations = 500;
-	private final int[] intermediaryLayers = {};
-	private volatile static JavaSparkContext context;
-	private volatile static SparkContext sparkContext;
-	private volatile static SparkSession sparkSession;
-	private volatile static Integer numUsers = 0;
-	private List<ClassifierRandomForest> attributeClassifiersHintFree;
-	private List<ClassifierRandomForest> recordClassifiersHintFree;
-	private List<ClassifierRandomForest> attributeClassifiersHintBased;
-	private List<ClassifierRandomForest> recordClassifiersHintBased;
-	private MultilayerPerceptronClassificationModel attributeMulticlassClassifierHintFree;
-	private MultilayerPerceptronClassificationModel recordMulticlassClassifierHintFree;
-	private MultilayerPerceptronClassificationModel attributeMulticlassClassifierHintBased;
-	private MultilayerPerceptronClassificationModel recordMulticlassClassifierHintBased;
+	protected final Integer numIterations = 200;
+	protected final int[] intermediaryLayers = {};
+	protected volatile static JavaSparkContext context;
+	protected volatile static SparkContext sparkContext;
+	protected volatile static SparkSession sparkSession;
+	protected volatile static Integer numUsers = 0;
+	protected List<Classifier> attributeClassifiersHintFree;
+	protected List<Classifier> recordClassifiersHintFree;
+	protected List<Classifier> attributeClassifiersHintBased;
+	protected List<Classifier> recordClassifiersHintBased;
+	protected MultilayerPerceptronClassificationModel attributeMulticlassClassifierHintFree;
+	protected MultilayerPerceptronClassificationModel recordMulticlassClassifierHintFree;
+	protected MultilayerPerceptronClassificationModel attributeMulticlassClassifierHintBased;
+	protected MultilayerPerceptronClassificationModel recordMulticlassClassifierHintBased;
 
 	static {
 		Logger.getLogger("org").setLevel(loggerLevel);
@@ -283,82 +244,20 @@ public class SparkHandlerRandomForest implements Serializable {
 		}
 	}
 
-	public void writeClassifiersString(String folderPath) throws IOException {
-		File classifierFile;
-		BufferedWriter writer;
+	public abstract void writeClassifiersString(String folderPath) throws IOException;
 
-		for (ClassifierRandomForest model:attributeClassifiersHintBased) {
-			classifierFile = new File(String.format("%s/hintBased/attributes/%s/%s.txt", folderPath, model.getName(), model.getName()));
-			classifierFile.getParentFile().mkdirs();
-			classifierFile.createNewFile();
-			writer = new BufferedWriter(new FileWriter(classifierFile));
-			writer.write(model.getModel().toDebugString());
-			writer.close();
+	public abstract ProbabilisticClassificationModel loadClassifier(String path);
 
-			//Trees parsing
-			List<javafx.util.Pair<String, List<String>>> treeStrings;
-			treeStrings = RandomForestParser.separateTrees(classifierFile);
-			List<Tree> trees = treeStrings.stream().map(t -> new Tree(t, featureNamesAttributesHB)).collect(Collectors.toList());
-			RandomForestParser.makeTreeViz(trees, classifierFile.getParent());
-		}
+	public abstract void saveClassifier(ProbabilisticClassificationModel classifier, String path);
 
-		new File(String.format("%s/hintBased/records/", folderPath)).mkdirs();
-		for (ClassifierRandomForest model:recordClassifiersHintBased) {
-			classifierFile = new File(String.format("%s/hintBased/records/%s/%s.txt", folderPath, model.getName(), model.getName()));
-			classifierFile.getParentFile().mkdirs();
-			classifierFile.createNewFile();
-			writer = new BufferedWriter(new FileWriter(classifierFile));
-			writer.write(model.getModel().toDebugString());
-			writer.close();
-
-			//Trees parsing
-			List<javafx.util.Pair<String, List<String>>> treeStrings;
-			treeStrings = RandomForestParser.separateTrees(classifierFile);
-			List<Tree> trees = treeStrings.stream().map(t -> new Tree(t, featureNamesRecordsHB)).collect(Collectors.toList());
-			RandomForestParser.makeTreeViz(trees, classifierFile.getParent());
-		}
-
-		new File(String.format("%s/hintFree/attributes/", folderPath)).mkdirs();
-		for (ClassifierRandomForest model:attributeClassifiersHintFree) {
-			classifierFile = new File(String.format("%s/hintFree/attributes/%s/%s.txt", folderPath, model.getName(), model.getName()));
-			classifierFile.getParentFile().mkdirs();
-			classifierFile.createNewFile();
-			writer = new BufferedWriter(new FileWriter(classifierFile));
-			writer.write(model.getModel().toDebugString());
-			writer.close();
-
-			//Trees parsing
-			List<javafx.util.Pair<String, List<String>>> treeStrings;
-			treeStrings = RandomForestParser.separateTrees(classifierFile);
-			List<Tree> trees = treeStrings.stream().map(t -> new Tree(t, featureNamesAttributesHF)).collect(Collectors.toList());
-			RandomForestParser.makeTreeViz(trees, classifierFile.getParent());
-		}
-
-		new File(String.format("%s/hintFree/records/", folderPath)).mkdirs();
-		for (ClassifierRandomForest model:recordClassifiersHintFree) {
-			classifierFile = new File(String.format("%s/hintFree/records/%s/%s.txt", folderPath, model.getName(), model.getName()));
-			classifierFile.getParentFile().mkdirs();
-			classifierFile.createNewFile();
-			writer = new BufferedWriter(new FileWriter(classifierFile));
-			writer.write(model.getModel().toDebugString());
-			writer.close();
-
-			//Trees parsing
-			List<javafx.util.Pair<String, List<String>>> treeStrings;
-			treeStrings = RandomForestParser.separateTrees(classifierFile);
-			List<Tree> trees = treeStrings.stream().map(t -> new Tree(t, featureNamesRecordsHF)).collect(Collectors.toList());
-			RandomForestParser.makeTreeViz(trees, classifierFile.getParent());
-		}
-	}
-
-	public void loadClassifiers(boolean hints) {
+	public void loadClassifiers(boolean hints){
 		assert classifiersFolder != null;
 
 		File classifiersFolderFile;
 		File[] classifiersFiles;
-		RandomForestClassificationModel cm;
+		ProbabilisticClassificationModel cm;
 		String classifierPath;
-		ClassifierRandomForest model;
+		Classifier model;
 		int i;
 
 		i = 0;
@@ -369,7 +268,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			classifiersFolderFile = new File(String.format("%s/classifiersNoHint/attributes", classifiersFolder));
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
-				cm = RandomForestClassificationModel.load(file.getAbsolutePath());
+				cm = loadClassifier(file.getAbsolutePath());
 				model = new ClassifierRandomForest();
 				model.setModel(cm);
 				model.setName(file.getName());
@@ -381,7 +280,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			classifiersFolderFile = new File(String.format("%s/classifiersNoHint/records", classifiersFolder));
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
-				cm = RandomForestClassificationModel.load(file.getAbsolutePath());
+				cm = loadClassifier(file.getAbsolutePath());
 				model = new ClassifierRandomForest();
 				model.setModel(cm);
 				model.setName(file.getName());
@@ -403,7 +302,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			classifiersFolderFile = new File(String.format("%s/classifiersHint/attributes", classifiersFolder));
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
-				cm = RandomForestClassificationModel.load(file.getAbsolutePath());
+				cm = loadClassifier(file.getAbsolutePath());
 				model = new ClassifierRandomForest();
 				model.setModel(cm);
 				model.setName(file.getName());
@@ -415,7 +314,7 @@ public class SparkHandlerRandomForest implements Serializable {
 			classifiersFolderFile = new File(String.format("%s/classifiersHint/records", classifiersFolder));
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
-				cm = RandomForestClassificationModel.load(file.getAbsolutePath());
+				cm = loadClassifier(file.getAbsolutePath());
 				model = new ClassifierRandomForest();
 				model.setModel(cm);
 				model.setName(file.getName());
@@ -454,7 +353,11 @@ public class SparkHandlerRandomForest implements Serializable {
 		}
 	}
 
-	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints)
+	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints){
+		return classify(slot, useProbabilities, true);
+	}
+
+	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints, boolean useMulticlass)
 			throws IOException, ParseException {
 		assert slot != null;
 		assert this.classifiersFolder != null;
@@ -498,28 +401,32 @@ public class SparkHandlerRandomForest implements Serializable {
 		classificationsMap.entrySet().stream().sorted(Entry.<String, Double> comparingByValue().reversed())
 				.forEachOrdered(x -> ranking.put(x.getKey(), x.getValue()));
 
-		vector = Vectors.dense(classifications);
-		prediction = (int)model.predict(vector);
-		if (slot instanceof Attribute) {
-			predictedClass = classesConfiguration.getAttributeClassesMapping().inverse().get(prediction);
+		//If we want to use propositionalization, we apply the multiclass classifier. Otherwise, we just take the class with the most probability. Obviously yields invalid results if probabilities are not used
+		if(useMulticlass){
+			vector = Vectors.dense(classifications);
+			prediction = (int)model.predict(vector);
+			if (slot instanceof Attribute) {
+				predictedClass = classesConfiguration.getAttributeClassesMapping().inverse().get(prediction);
+			} else {
+				predictedClass = classesConfiguration.getRecordClassesMapping().inverse().get(prediction);
+			}
 		} else {
-			predictedClass = classesConfiguration.getRecordClassesMapping().inverse().get(prediction);
+			predictedClass = new ArrayList<>(ranking.keySet()).get(0);
 		}
-		
 
 		result = Pair.of(predictedClass, ranking);
 
 		return result;
 	}
 
-	public void createBinaryClassifiers(boolean hints) throws IOException, ParseException {
+	public void createBinaryClassifiers(boolean hints) throws IOException, ParseException{
 		assert this.tablesFolder != null;
 		assert this.classifiersFolder != null;
 
 		File outFile;
 		File tableFile;
 		String firstLine;
-		RandomForestClassificationModel model;
+		ProbabilisticClassificationModel model;
 
 		if (hints) {
 			outFile = new File(String.format("%s/classifiersHint/attributes", classifiersFolder));
@@ -544,9 +451,9 @@ public class SparkHandlerRandomForest implements Serializable {
 		for (String attributeClass : classesConfiguration.getAttributeClasses()) {
 			model = trainBinaryClassifier(tableFile.getAbsolutePath(), attributeClass);
 			if (hints) {
-				model.save(String.format("%s/classifiersHint/attributes/%s", classifiersFolder, attributeClass));
+				saveClassifier(model, String.format("%s/classifiersHint/attributes/%s", classifiersFolder, attributeClass));
 			} else {
-				model.save(String.format("%s/classifiersNoHint/attributes/%s", classifiersFolder, attributeClass));
+				saveClassifier(model, String.format("%s/classifiersNoHint/attributes/%s", classifiersFolder, attributeClass));
 			}
 		}
 		// Records
@@ -558,12 +465,11 @@ public class SparkHandlerRandomForest implements Serializable {
 		for (String recordClass : classesConfiguration.getRecordClasses()) {
 			model = trainBinaryClassifier(tableFile.getAbsolutePath(), recordClass);
 			if (hints) {
-				model.save(String.format("%s/classifiersHint/records/%s", classifiersFolder, recordClass));
+				saveClassifier(model, String.format("%s/classifiersHint/records/%s", classifiersFolder, recordClass));
 			} else {
-				model.save(String.format("%s/classifiersNoHint/records/%s", classifiersFolder, recordClass));
+				saveClassifier(model, String.format("%s/classifiersNoHint/records/%s", classifiersFolder, recordClass));
 			}
 		}
-
 	}
 
 	public double[] applyClassifiers(Slot slot, boolean useProbabilities, boolean hints) {
@@ -571,7 +477,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		assert this.classifiersFolder != null;
 
 		double[] result;
-		List<ClassifierRandomForest> models;
+		List<Classifier> models;
 		double classification;
 		List<Double> classifications;
 		Vector vector;
@@ -592,7 +498,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		}
 
 		classifications = new ArrayList<Double>();
-		for (ClassifierRandomForest model : models) {
+		for (Classifier model : models) {
 			if (useProbabilities) {
 				classification = model.getModel().predictProbability(vector).toArray()[1];
 			} else {
@@ -613,7 +519,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		assert this.classifiersFolder != null;
 
 		LinkedHashMap<String, Double> result;
-		List<ClassifierRandomForest> models;
+		List<Classifier> models;
 		double classification;
 		Vector vector;
 
@@ -632,7 +538,7 @@ public class SparkHandlerRandomForest implements Serializable {
 				models = attributeClassifiersHintFree;
 			}
 		}
-		for (ClassifierRandomForest model : models) {
+		for (Classifier model : models) {
 			if (useProbabilities) {
 				classification = model.getModel().predictProbability(vector).toArray()[1];
 			} else {
@@ -652,8 +558,8 @@ public class SparkHandlerRandomForest implements Serializable {
 		String filePath;
 		File csvFile;
 		String newCsvPath;
-		List<RandomForestClassificationModel> models;
-		RandomForestClassificationModel model;
+		List<ProbabilisticClassificationModel> models;
+		ProbabilisticClassificationModel model;
 		String slotClass;
 		List<String> featureList;
 		List<String> classifierNames;
@@ -691,7 +597,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		classifierNames.add("id");
 		for (File file : classifiersFiles) {
 			classifierNames.add(file.getName());
-			model = RandomForestClassificationModel.load(file.getAbsolutePath());
+			model = loadClassifier(file.getAbsolutePath());
 			models.add(model);
 		}
 		classifierNames.add("class");
@@ -717,7 +623,7 @@ public class SparkHandlerRandomForest implements Serializable {
 				// how they are created.
 				featureList = new ArrayList<String>();
 				featureList.add(elementId);
-				for (RandomForestClassificationModel MPCModel : models) {
+				for (ProbabilisticClassificationModel MPCModel : models) {
 					if (useProbabilities) {
 						classification = MPCModel.predictProbability(vector).toArray()[1];
 					} else {
@@ -754,7 +660,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		classifierNames.add("id");
 		for (File file : classifiersFiles) {
 			classifierNames.add(file.getName());
-			model = RandomForestClassificationModel.load(file.getAbsolutePath());
+			model = loadClassifier(file.getAbsolutePath());
 			models.add(model);
 		}
 		classifierNames.add("class");
@@ -779,7 +685,7 @@ public class SparkHandlerRandomForest implements Serializable {
 				// how they are created.
 				featureList = new ArrayList<String>();
 				featureList.add(elementId);
-				for (RandomForestClassificationModel MPCModel : models) {
+				for (ProbabilisticClassificationModel MPCModel : models) {
 					classification = MPCModel.predict(vector);
 					featureList.add(String.valueOf(classification));
 				}
@@ -867,30 +773,9 @@ public class SparkHandlerRandomForest implements Serializable {
 
 	// Ancillary methods----------------------------------------------
 
-	private RandomForestClassificationModel trainBinaryClassifier(String trainingFilePath, String slotClass) {
-		assert context != null;
-		assert trainingFilePath != null;
-		assert this.numTrees != null;
-		assert this.maxDepth != null;
-		assert this.maxBins != null;
-		assert slotClass != null;
+	protected abstract ProbabilisticClassificationModel trainBinaryClassifier(String trainingFilePath, String slotClass);
 
-		final RandomForestClassificationModel result;
-		RandomForestClassifier trainer;
-		JavaRDD<String> csv;
-		Dataset<Row> trainingData;
-
-		csv = context.textFile(trainingFilePath);
-		trainingData = csvToDataset(csv, slotClass);
-		trainer = new RandomForestClassifier().setNumTrees(numTrees).setSeed(1234).setLabelCol("label").setMaxBins(maxBins).setMaxDepth(maxDepth)
-				.setFeaturesCol("features");
-		System.out.println(String.format("Training classifier for class %s", slotClass));
-		result = trainer.fit(trainingData);
-		System.out.println(result.toString());
-		return result;
-	}
-
-	private Dataset<Row> csvToDataset(JavaRDD<String> data, final String slotClass) {
+	protected Dataset<Row> csvToDataset(JavaRDD<String> data, final String slotClass) {
 		assert data != null;
 
 		Dataset<Row> result;
@@ -922,7 +807,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		});
 		rowsRDD = data.map(new Function<String, Row>() {
 
-			private static final long serialVersionUID = -2554198184785931531L;
+			protected static final long serialVersionUID = -2554198184785931531L;
 
 			@Override
 			public Row call(String alert) {
@@ -951,7 +836,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		return result;
 	}
 
-	private Dataset<Row> csvToDataset(JavaRDD<String> data, final Map<String, Double> classesMapping) {
+	protected Dataset<Row> csvToDataset(JavaRDD<String> data, final Map<String, Double> classesMapping) {
 		assert data != null;
 
 		Dataset<Row> result;
@@ -983,7 +868,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		});
 		rowsRDD = data.map(new Function<String, Row>() {
 
-			private static final long serialVersionUID = -2554198184785931531L;
+			protected static final long serialVersionUID = -2554198184785931531L;
 
 			@Override
 			public Row call(String alert) {
@@ -1012,7 +897,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		return result;
 	}
 
-	private Dataset<Row> csvToDataset(JavaRDD<String> data) {
+	protected Dataset<Row> csvToDataset(JavaRDD<String> data) {
 		assert data != null;
 
 		Dataset<Row> result;
@@ -1044,7 +929,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		});
 		rowsRDD = data.map(new Function<String, Row>() {
 
-			private static final long serialVersionUID = -2554198184785931531L;
+			protected static final long serialVersionUID = -2554198184785931531L;
 
 			@Override
 			public Row call(String alert) {
@@ -1073,7 +958,7 @@ public class SparkHandlerRandomForest implements Serializable {
 		return result;
 	}
 
-	private Vector featuresVectorToVector(FeaturesVector featuresVector) {
+	protected Vector featuresVectorToVector(FeaturesVector featuresVector) {
 		assert featuresVector != null;
 
 		Vector result;

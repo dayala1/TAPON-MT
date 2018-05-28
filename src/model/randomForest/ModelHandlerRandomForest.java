@@ -5,12 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -54,6 +49,23 @@ public class ModelHandlerRandomForest {
 
 	public Set<FeaturesGroup> getSlotFeaturesGroups() {
 		return slotFeaturesGroups;
+	}
+
+	public SparkHandlerRandomForest getSparkHandler(){
+		return this.sparkHandler;
+	}
+
+	public Map<Integer, String> getFeatureNamesAttributesHF(){
+		return this.sparkHandler.getFeatureNamesAttributesHF();
+	}
+	public Map<Integer, String> getFeatureNamesAttributesHB(){
+		return this.sparkHandler.getFeatureNamesAttributesHB();
+	}
+	public Map<Integer, String> getFeatureNamesRecordsHF(){
+		return this.sparkHandler.getFeatureNamesRecordsHF();
+	}
+	public Map<Integer, String> getFeatureNamesRecordsHB(){
+		return this.sparkHandler.getFeatureNamesRecordsHB();
 	}
 
 	public void setSlotFeaturesGroups(Set<FeaturesGroup> slotFeaturesGroups) {
@@ -162,6 +174,7 @@ public class ModelHandlerRandomForest {
 	}
 
 	public void loadFeatureNames() throws IOException {
+		sparkHandler.setTablesFolder(tablesRootFolder);
 		sparkHandler.loadFeatureNames();
 	}
 
@@ -479,9 +492,9 @@ public class ModelHandlerRandomForest {
 		assert sparkHandler != null;
 		assert params != null;
 
-		sparkHandler.setNumTrees(Integer.valueOf(params.getOrDefault("numTrees", "100")));
+		sparkHandler.setNumTrees(Integer.valueOf(params.getOrDefault("numTrees", "20")));
 		sparkHandler.setMaxBins(Integer.valueOf(params.getOrDefault("maxBins", "32")));
-		sparkHandler.setMaxDepth(Integer.valueOf(params.getOrDefault("maxDepth", "15")));
+		sparkHandler.setMaxDepth(Integer.valueOf(params.getOrDefault("maxDepth", "5")));
 	}
 
 	public void loadFeaturesCalculators() throws IOException, ClassNotFoundException {
@@ -682,6 +695,7 @@ public class ModelHandlerRandomForest {
 			// System.out.println(String.format("Predicted class %s",
 			// slotClass));
 			slot.setHint(slotClass);
+			//slot.setHint(new ArrayList<>(ranking.keySet()).get(0));
 			slot.setHintsRanking(ranking);
 		} catch (Exception e) {
 			System.out.println("There has been a problem while trying to classify a slot: ");

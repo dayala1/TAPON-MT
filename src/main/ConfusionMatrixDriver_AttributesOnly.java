@@ -54,8 +54,8 @@ public class ConfusionMatrixDriver_AttributesOnly {
 		Double totalRecall;
 		Double numClasses;
 
-		datasetsRootPath = "E:/model/KushResults/results/1-domains";
-		classesPath = "E:/model/ISIResults/classesISI.json";
+		datasetsRootPath = "E:/model/KushResultsFinal/results/1-domains";
+		classesPath = "E:/model/ISIResults3/classesISI.json";
 		slotClasses = Sets.newHashSet();
 		addClasses(slotClasses, classesPath);
 		slotClasses.add("none");

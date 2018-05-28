@@ -49,7 +49,7 @@ public class NumberOfBrothers extends Feature<Slot>{
 	public String toString(){
 		String result;
 
-		result = "Number of siblings among siblings";
+		result = "Number of siblings";
 
 		return result;
 	}

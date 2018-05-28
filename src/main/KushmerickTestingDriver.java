@@ -71,12 +71,12 @@ public class KushmerickTestingDriver {
 		trainingDatasets = new ArrayList<Dataset>();
 		testingDatasets = new ArrayList<Dataset>();
 		modelHandler = new ModelHandlerRandomForestOneIteration();
-		domains = new String[]{"Awards-full"};
+		domains = new String[]{"Awards-propios"};
 		numberOfDomains = domains.length;
-		classifiersTablesRoot = "E:/model/KushResults";
-		resultsRoot = "E:/model/KushResults";
+		classifiersTablesRoot = "E:/model/KushResultsFinal";
+		resultsRoot = "E:/model/KushResultsFinal";
 		datasetsRoot = "E:/Documents/US/Tesis";
-		testingFoldNumber = 1;
+		testingFoldNumber = 10;
 		
 		modelHandler.setClassifiersRootFolder(String.format("%s/classifiersAndTables/modelClassifiers/%s-domains/fold-%s", classifiersTablesRoot, numberOfDomains, testingFoldNumber));
 		modelHandler.setTablesRootFolder(String.format("%s/classifiersAndTables/modelTables/%s-domains/fold-%s", classifiersTablesRoot, numberOfDomains, testingFoldNumber));

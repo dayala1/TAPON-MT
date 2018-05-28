@@ -4,9 +4,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
+
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 
@@ -16,11 +15,11 @@ public class ClassesConfiguration implements Serializable{
 
 	public ClassesConfiguration() {
 		super();
-		this.attributeClasses = new HashSet<String>();
-		this.recordClasses = new HashSet<String>();
+		this.attributeClasses = new HashSet<>();
+		this.recordClasses = new HashSet<>();
 		this.attributeClassesMapping = HashBiMap.create();
 		this.recordClassesMapping = HashBiMap.create();
-
+		this.isNumeric = new HashMap<>();
 	}
 
 	// Properties-----------------------------------------------------
@@ -29,6 +28,15 @@ public class ClassesConfiguration implements Serializable{
 	private Set<String> recordClasses;
 	private BiMap<String, Integer> attributeClassesMapping;
 	private BiMap<String, Integer> recordClassesMapping;
+	private Map<String, Boolean> isNumeric;
+
+	public void setIsNumeric(String slotClass, Boolean isNumeric){
+		this.isNumeric.put(slotClass, isNumeric);
+	}
+
+	public Boolean getIsNumeric(String slotClass){
+		return this.isNumeric.get(slotClass);
+	}
 
 	public BiMap<String, Integer> getAttributeClassesMapping() {
 		return this.attributeClassesMapping;

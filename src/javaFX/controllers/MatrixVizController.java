@@ -51,7 +51,7 @@ public class MatrixVizController implements Initializable {
                 color = Colors.interpolateViridis(results.getSimilarityMatrix().get(class1, class2));
                 rectangle.fillProperty().setValue(Paint.valueOf(color.toHexString()));
 
-                tooltip = new Tooltip(String.format("%s === %s -> %s",  class1, class2, results.getSimilarityMatrix().get(class1, class2)));
+                tooltip = new Tooltip(String.format("%s === %s -> %.2f",  class1, class2, results.getSimilarityMatrix().get(class1, class2)));
                 Tooltip.install(rectangle, tooltip);
                 aPane.getChildren().add(rectangle);
             }

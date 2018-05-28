@@ -172,7 +172,7 @@ public class ResultsDataset implements Serializable {
 
     public String toString(){
         String res;
-        res = String.format("ACCURACY: %s\nMACRO PRECISION: %s\nMACRO RECALL: %s\nMACRO F1: %s", this.accuracy, this.macroPrecision, this.macroRecall, this.macroF1);
+        res = String.format("Accuracy: %.2f\nMacro precision: %.2f\nMacro recall: %.2f\nMacro F1: %.2f", this.accuracy, this.macroPrecision, this.macroRecall, this.macroF1);
 
         return res;
     }

@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import model.randomForest.ModelHandlerRandomForest;
 import org.apache.commons.io.FileUtils;
 import org.apache.parquet.Strings;
+import utils.ClockMonitor;
 import utils.DatasetReader;
 import utils.FileUtilsCust;
 
@@ -78,6 +79,7 @@ public class ModelTestingProgressController implements Initializable {
         DatasetReader datasetReader;
         ModelHandlerRandomForest modelHandler;
         String datasetsFolderPath;
+        ClockMonitor clock;
 
         Preferences pref = Preferences.userNodeForPackage(EntryPoint.class);
         String datasetsPath = pref.get("datasetsPath", null);
@@ -176,12 +178,17 @@ public class ModelTestingProgressController implements Initializable {
             }
         });
         //Testing
+        clock = new ClockMonitor();
+        clock.start();
         for (Dataset dataset: testingDatasets) {
             modelHandler.refineHintsUnlabelledDataset(dataset);
             modelHandler.refineHintsOnce(dataset);
             modelHandler.saveResults(dataset, resultsRootSpecific);
         }
         modelHandler.closeContext();
+        clock.stop();
+        FileUtilsCust.createCSV(String.format("%s/applicationTime.csv", resultsRootSpecific));
+        FileUtilsCust.addLine(String.format("%s/applicationTime.csv", resultsRootSpecific), clock.getCPUTime());
 
         Platform.runLater(new Runnable() {
             @Override

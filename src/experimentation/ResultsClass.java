@@ -92,7 +92,7 @@ public class ResultsClass implements Serializable{
 
     public String toString(){
         String res;
-        res = String.format("%s\nPRECISION: %s\nRECALL: %s\nF1: %s", this.className, this.precision, this.recall, this.f1);
+        res = String.format("%s\nPrecision: %.2f\nRecall: %.2f\nF1: %.2f", this.className, this.precision, this.recall, this.f1);
         return res;
     }
 }

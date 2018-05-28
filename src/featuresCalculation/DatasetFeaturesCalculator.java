@@ -203,6 +203,8 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 		Path path;
 		Map<String, List<String>> accumulatedExamples;
 		StringBuilder sb;
+		Map<String, Integer> numericExamples;
+		Map<String, Integer> textualExamples;
 
 		accumulatedExamples = new HashMap<String, List<String>>();
 		path = Paths.get(getIndexPath());
@@ -212,6 +214,9 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 		analyzer.setVersion(Version.LUCENE_5_4_1);
 		indexWriterConfig = new IndexWriterConfig(analyzer);
 		indexWriter = new IndexWriter(directory, indexWriterConfig);
+		//TODO deteccion de clases numericas
+		numericExamples = new HashMap<>();
+		textualExamples = new HashMap<>();
 		for (Dataset dataset : datasets) {
 			queue = new ArrayDeque<Slot>();
 			children = dataset.getSlots();
@@ -221,6 +226,11 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 				slotClass = slot.getSlotClass();
 				if (slot instanceof Attribute) {
 					value = ((Attribute) slot).getValue();
+					if(((Attribute) slot).getNumericValue() != null){
+						numericExamples.put(slotClass, numericExamples.getOrDefault(slotClass,0)+1);
+					} else {
+						textualExamples.put(slotClass, textualExamples.getOrDefault(slotClass,0)+1);
+					}
 					classesConfiguration.addAttributeClass(slotClass);
 					document = new Document();
 					field = new StringField("attributeClass", slotClass, Store.YES);
@@ -244,6 +254,15 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 					classesConfiguration.addRecordClass(slotClass);
 				}
 			}
+		}
+
+		for (String sC :
+				classesConfiguration.getAttributeClasses()) {
+				if( 1.0*numericExamples.get(sC) / textualExamples.get(sC) > 0.75 ) {
+					classesConfiguration.setIsNumeric(sC, true);
+				} else {
+					classesConfiguration.setIsNumeric(sC, false);
+				}
 		}
 
 		for (String attributeClass : classesConfiguration.getAttributeClasses()) {

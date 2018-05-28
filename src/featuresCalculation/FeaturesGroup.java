@@ -21,7 +21,7 @@ public abstract class FeaturesGroup<T extends Featurable> implements Serializabl
 	//Properties-----------------------------------------------------
 	
 	private IterationType iterationType;
-	private ClassesConfiguration classesConfiguration;
+	protected ClassesConfiguration classesConfiguration;
 	private Set<Feature<T>> features;
 	private String indexPath;
 

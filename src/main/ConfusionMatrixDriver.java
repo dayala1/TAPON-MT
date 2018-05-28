@@ -54,19 +54,19 @@ public class ConfusionMatrixDriver {
 		Double totalRecall;
 		Double numClasses;
 		
-		datasetsRootPath = "C:/Users/Boss/Documents/RandomForestNewProbabilities/results/results/10-domains";
-		classesPath = "C:/Users/Boss/Documents/RandomForestNew/classifiersAndTables/modelTables/10-domains/fold-1/classes.json";
+		datasetsRootPath = "E:/model/resultsCompareOneVsAll/8-folds";
+		classesPath = "E:/Documents/US/Tesis/datasets/classes.json";
 		slotClasses = Sets.newHashSet();
 		addClasses(slotClasses, classesPath);
 		slotClasses.add("none");
-		maxNumIterations = 4;
+		maxNumIterations = 2;
 		resultsFilePath = String.format("%s/experimentalResults.csv", datasetsRootPath);
 		FileUtilsCust.createCSV(resultsFilePath);
 		rows = Lists.newArrayList();
 		header = Lists.newArrayList();
 		header.add("TECH");
 		numSlots = 0;
-		for(int j = 1; j <= 1; j++) {
+		for(int j = 0; j <= 1; j++) {
 			for (int i = 1; i <= maxNumIterations; i++) {
 				row = Lists.newArrayList();
 				row.add(String.format("%s-iterations", i));
@@ -84,7 +84,7 @@ public class ConfusionMatrixDriver {
 				numClasses = 0.0;
 				totalPrecision = 0.0;
 				totalRecall = 0.0;
-				datasetsFolderPath = String.format("%s/fold-%s/%s-iterations", datasetsRootPath, j, i);
+				datasetsFolderPath = String.format("%s/%s/results/results/%s-iterations", datasetsRootPath, j, i);
 				datasetsFolder = new File(datasetsFolderPath);
 				datasetFolders = datasetsFolder.listFiles();
 				for (File datasetFolder : datasetFolders) {

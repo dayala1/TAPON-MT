@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 
-public class ClassifierRandomForest implements Serializable{
+public class ClassifierRandomForest implements Classifier<RandomForestClassificationModel>{
 	
 	private static final long serialVersionUID = 4966109125913354099L;
 

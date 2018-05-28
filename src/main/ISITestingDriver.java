@@ -66,11 +66,11 @@ public class ISITestingDriver {
 		trainingDatasets = new ArrayList<Dataset>();
 		testingDatasets = new ArrayList<Dataset>();
 
-		domains = new String[]{"Awards-full"};
+		domains = new String[]{"Awards-propios"};
 		numberOfDomains = domains.length;
-		resultsRoot = "E:/model/ISIResults2";
+		resultsRoot = "E:/model/ISIResults3";
 		datasetsRoot = "E:/Documents/US/Tesis";
-		testingFoldNumber = 10;
+		testingFoldNumber = 1;
 
 		trainingDatasetsFolders = new ArrayList<String>();
 
@@ -215,10 +215,16 @@ public class ISITestingDriver {
 			examples = Lists.newArrayList();
 			examples.add(textualValue);
 			if(!(textualValue.isEmpty() || emptyPattern.matcher(textualValue).matches())){
-				predictions = typer.predictType(examples, 1);
-				if(predictions.size()>0){
-					predictedClass = predictions.get(0).getLabel();
-				}else{
+				try {
+					predictions = typer.predictType(examples, 1);
+					if (predictions.size() > 0) {
+						predictedClass = predictions.get(0).getLabel();
+					} else {
+						predictedClass = "none";
+					}
+				}catch(Exception e){
+					System.out.println("Error while labelling");
+					e.printStackTrace();
 					predictedClass = "none";
 				}
 			}else{

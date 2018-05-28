@@ -360,7 +360,7 @@ public class ModelTestingController implements Initializable {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    displayError("No folds selected", "Plese, select at least one testing fold.");
+                    displayError("No folds selected", "Please, select at least one testing fold.");
                 }
             });
            return;
@@ -371,7 +371,7 @@ public class ModelTestingController implements Initializable {
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
-                    displayError("No domains selected", "Plese, select at least one testing domain.");
+                    displayError("No domains selected", "Please, select at least one testing domain.");
                 }
             });
             return;

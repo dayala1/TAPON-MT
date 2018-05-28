@@ -41,24 +41,22 @@ public class ModelApplicationDriver {
 		
 		//MODEL APPLICATION
 		datasetReader = new DatasetReader();
-		trainingDatasets = new ArrayList<Dataset>();
 		testingDatasets = new ArrayList<Dataset>();
 		modelHandler = new ModelHandlerRandomForest();
 		
-		domains = Arrays.copyOfRange(args, 4, args.length);
-		numberOfDomains = domains.length;
-		classifiersTablesRoot = args[0];
-		resultsRoot = args[1];
-		datasetsRoot = args[2];
+		domains = new String[]{"Articles", "Awards", "Countries", "Courseware", "Dev8d", "DigitalEconomy", "Edubase", "Epo", "Epsrc", "Restaurants"};
+		classifiersTablesRoot = "E:/model/resultsCompareOneVsAll/8-folds/1";
+		resultsRoot = "E:/model/resultsCompareOneVsAll/8-folds/1";
+		datasetsRoot = "E:/Documents/US/Tesis/datasets";
 		
-		modelHandler.setClassifiersRootFolder(String.format("%s/classifiersAndTables/modelClassifiers/%s-domains", classifiersTablesRoot, numberOfDomains));
-		modelHandler.setTablesRootFolder(String.format("%s/classifiersAndTables/modelTables/%s-domains", classifiersTablesRoot, numberOfDomains));
+		modelHandler.setClassifiersRootFolder(String.format("%s/classifiersAndTables/modelClassifiers", classifiersTablesRoot));
+		modelHandler.setTablesRootFolder(String.format("%s/classifiersAndTables/modelTables", classifiersTablesRoot));
 		modelHandler.loadFeaturesCalculators();
 		
 		for (String domain : domains) {
-			for (int i = 1; i < 11; i++) {
-				datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, i);
-				datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
+			for (int i = 4; i < 5; i++) {
+				datasetsPath = String.format("%s/%s/%s",datasetsRoot, domain, i);
+				datasetReader.addDataset(datasetsPath, 1.0, testingDatasets);
 			}
 		}
 		
@@ -73,11 +71,11 @@ public class ModelApplicationDriver {
 			modelHandler.refineHintsUnlabelledDataset(testingDataset);
 			checkHints(testingDataset);
 			System.out.println("");
-			modelHandler.saveResults(testingDataset, String.format("%s/results/%s-domains/1-iterations", resultsPath, numberOfDomains));
+			modelHandler.saveResults(testingDataset, String.format("%s/results/1-iterations", resultsPath));
 		}
 		clock.stop();
-		FileUtilsCust.createCSV(String.format("%s/results/%s-domains/1-iterations/applicationTime.csv", resultsPath, numberOfDomains));
-		FileUtilsCust.addLine(String.format("%s/results/%s-domains/1-iterations/applicationTime.csv", resultsPath, numberOfDomains), clock.getCPUTime());
+		FileUtilsCust.createCSV(String.format("%s/results/1-iterations/applicationTime.csv", resultsPath));
+		FileUtilsCust.addLine(String.format("%s/results/1-iterations/applicationTime.csv", resultsPath), clock.getCPUTime());
 		modelHandler.resetFolderCount();
 		for (int i = 0; i < 1; i++) {
 			for (Dataset testingDataset : testingDatasets) {
@@ -85,11 +83,11 @@ public class ModelApplicationDriver {
 				checkHints(testingDataset);
 				System.out.println("");
 				//System.out.println("finished dataset");
-				modelHandler.saveResults(testingDataset, String.format("%s/results/%s-domains/%s-iterations", resultsPath, numberOfDomains, i+2));
+				modelHandler.saveResults(testingDataset, String.format("%s/results/%s-iterations", resultsPath, i+2));
 			}
 			clock.stop();
-			FileUtilsCust.createCSV(String.format("%s/results/%s-domains/%s-iterations/applicationTime.csv", resultsPath, numberOfDomains, i+2));
-			FileUtilsCust.addLine(String.format("%s/results/%s-domains/%s-iterations/applicationTime.csv", resultsPath, numberOfDomains, i+2), clock.getCPUTime());
+			FileUtilsCust.createCSV(String.format("%s/results/%s-iterations/applicationTime.csv", resultsPath, i+2));
+			FileUtilsCust.addLine(String.format("%s/results/%s-iterations/applicationTime.csv", resultsPath, i+2), clock.getCPUTime());
 			modelHandler.resetFolderCount();
 		}
 		/*

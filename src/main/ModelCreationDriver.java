@@ -24,6 +24,7 @@ import featuresCalculation.featureGroups.slot.OliveiraDaSilvaGroup;
 import model.randomForest.ModelHandlerRandomForest;
 import utils.ClockMonitor;
 import utils.DatasetReader;
+import utils.FileUtilsCust;
 
 public class ModelCreationDriver {
 
@@ -55,7 +56,6 @@ public class ModelCreationDriver {
 		Hint_DensityOfBrothersGroup densityofBrothersGroup;
 		NumericValueGroup numericValueGroup;
 		DatasetFeaturesCalculator datasetFeaturesCalculator;
-		List<String> trainingDatasetsFolders;
 
 		//MODEL APPLICATION
 		List<Dataset> trainingDatasets;
@@ -64,90 +64,95 @@ public class ModelCreationDriver {
 		String classifiersTablesRoot;
 		String resultsRoot;
 		String datasetsRoot;
-		String[] domains;
-		int testingFoldNumber;
-		Integer numberOfDomains;
 		String datasetsPath;
 		ModelHandlerRandomForest modelHandler;
-		String resultsPath;
 
 		clock = new ClockMonitor();
 
 		//MODEL CREATION
-		slotFeaturesGroups = new HashSet<FeaturesGroup>();
-		hintSlotFeaturesGroups = new HashSet<FeaturesGroup>();
-		characterDensityGroup = new CharacterDensityGroup();
-		tokenDensityGroup = new TokenDensityGroup();
-		numberOfOccurrencesGroup = new NumberOfOccurrencesGroup();
-		oliveiraDaSilvaGroup = new OliveiraDaSilvaGroup();
-		numberOfSlotsRecordGroup = new Hint_NumberOfSlotsRecordGroup();
-		commonPrefixSuffixLengthGroup = new CommonPrefixSuffixLengthGroup();
-		densityOfSlotsGroup = new Hint_DensityOfSlotGroup();
-		nodeDepthGroup = new NodeDepthGroup();
-		editDistanceGroup = new EditDistanceGroup();
-		typerScoreGroup = new TyperScoreGroup();
-		numberOfBrothersGroup = new NumberOfBrothersGroup();
-		numberOfChildrenGroup = new NumberOfChildrenGroup();
-		trainingDatasetsFolders = new ArrayList<String>();
-		featurableFeaturesGroups = new HashSet<FeaturesGroup>();
-		hintFeaturableFeaturesGroups = new HashSet<FeaturesGroup>();
-		minimumTreeDistanceGroup = new Hint_MinimumTreeDistanceGroup();
-		densityofBrothersGroup = new Hint_DensityOfBrothersGroup();
-		numericValueGroup = new NumericValueGroup();
-		
 		//MODEL APPLICATION
 		datasetReader = new DatasetReader();
-		trainingDatasets = new ArrayList<Dataset>();
-		testingDatasets = new ArrayList<Dataset>();
-		modelHandler = new ModelHandlerRandomForest();
-		
-		domains = Arrays.copyOfRange(args, 3, args.length);
-		numberOfDomains = domains.length;
-		classifiersTablesRoot = args[0];
-		resultsRoot = args[1];
-		datasetsRoot = args[2];
-		
-		modelHandler.setClassifiersRootFolder(String.format("%s/classifiersAndTables/modelClassifiers/%s-domains", classifiersTablesRoot, numberOfDomains));
-		modelHandler.setTablesRootFolder(String.format("%s/classifiersAndTables/modelTables/%s-domains", classifiersTablesRoot, numberOfDomains));
-		
-		slotFeaturesGroups.add(characterDensityGroup);
-		slotFeaturesGroups.add(tokenDensityGroup);
-		slotFeaturesGroups.add(numberOfOccurrencesGroup);
-		//slotFeaturesGroups.add(oliveiraDaSilvaGroup);
-		slotFeaturesGroups.add(commonPrefixSuffixLengthGroup);
-		slotFeaturesGroups.add(nodeDepthGroup);
-		slotFeaturesGroups.add(editDistanceGroup);
-		slotFeaturesGroups.add(typerScoreGroup);
-		slotFeaturesGroups.add(numberOfBrothersGroup);
-		slotFeaturesGroups.add(numberOfChildrenGroup);
-		slotFeaturesGroups.add(numericValueGroup);
-		hintSlotFeaturesGroups.add(numberOfSlotsRecordGroup);
-		hintSlotFeaturesGroups.add(densityOfSlotsGroup);
-		hintSlotFeaturesGroups.add(densityofBrothersGroup);
-		hintFeaturableFeaturesGroups.add(minimumTreeDistanceGroup);
-		
-		trainingDatasetsFolders = new ArrayList<String>();
-		
-		for (String domain : domains) {
-			for (int i = 1; i < 2; i++) {
-				datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, i);
-				datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
+
+		String[] domains = new String[]{"Articles", "Awards", "Countries", "Courseware", "Dev8d", "DigitalEconomy", "Edubase", "Epo", "Epsrc", "Restaurants"};
+		Integer numberOfDomains = domains.length;
+		classifiersTablesRoot = "E:/model/resultsCompareOneVsAll";
+		Integer numberOfFolds = 8;
+		datasetsRoot = "E:/Documents/US/Tesis";
+		Set<Integer> trainingFolds;
+
+		for (int i = 1; i < 2; i++) {
+			trainingFolds = new HashSet<>();
+			for (int j = i; j < i+numberOfFolds; j++) {
+				trainingFolds.add(j%10+1);
 			}
+			System.out.println(trainingFolds);
+
+			modelHandler = new ModelHandlerRandomForest();
+			modelHandler.setClassifiersRootFolder(String.format("%s/%s-folds/%s/classifiersAndTables/modelClassifiers", classifiersTablesRoot, numberOfFolds, i));
+			modelHandler.setTablesRootFolder(String.format("%s/%s-folds/%s/classifiersAndTables/modelTables", classifiersTablesRoot, numberOfFolds, i));
+
+			slotFeaturesGroups = new HashSet<FeaturesGroup>();
+			hintSlotFeaturesGroups = new HashSet<FeaturesGroup>();
+			featurableFeaturesGroups = new HashSet<FeaturesGroup>();
+			hintFeaturableFeaturesGroups = new HashSet<FeaturesGroup>();
+
+			characterDensityGroup = new CharacterDensityGroup();
+			tokenDensityGroup = new TokenDensityGroup();
+			numberOfOccurrencesGroup = new NumberOfOccurrencesGroup();
+			numberOfSlotsRecordGroup = new Hint_NumberOfSlotsRecordGroup();
+			commonPrefixSuffixLengthGroup = new CommonPrefixSuffixLengthGroup();
+			densityOfSlotsGroup = new Hint_DensityOfSlotGroup();
+			nodeDepthGroup = new NodeDepthGroup();
+			editDistanceGroup = new EditDistanceGroup();
+			typerScoreGroup = new TyperScoreGroup();
+			numberOfBrothersGroup = new NumberOfBrothersGroup();
+			numberOfChildrenGroup = new NumberOfChildrenGroup();
+			minimumTreeDistanceGroup = new Hint_MinimumTreeDistanceGroup();
+			densityofBrothersGroup = new Hint_DensityOfBrothersGroup();
+			numericValueGroup = new NumericValueGroup();
+
+			slotFeaturesGroups.add(characterDensityGroup);
+			slotFeaturesGroups.add(tokenDensityGroup);
+			slotFeaturesGroups.add(numberOfOccurrencesGroup);
+			slotFeaturesGroups.add(commonPrefixSuffixLengthGroup);
+			slotFeaturesGroups.add(nodeDepthGroup);
+			slotFeaturesGroups.add(editDistanceGroup);
+			slotFeaturesGroups.add(typerScoreGroup);
+			slotFeaturesGroups.add(numberOfBrothersGroup);
+			slotFeaturesGroups.add(numberOfChildrenGroup);
+			slotFeaturesGroups.add(numericValueGroup);
+			hintSlotFeaturesGroups.add(numberOfSlotsRecordGroup);
+			hintSlotFeaturesGroups.add(densityOfSlotsGroup);
+			hintSlotFeaturesGroups.add(densityofBrothersGroup);
+			hintFeaturableFeaturesGroups.add(minimumTreeDistanceGroup);
+
+			trainingDatasets = new ArrayList<Dataset>();
+
+			for (String domain : domains) {
+				for (Integer trainingFold : trainingFolds) {
+					datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, trainingFold);
+					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
+				}
+			}
+
+			modelHandler.setFeaturableFeaturesGroups(featurableFeaturesGroups);
+			modelHandler.setSlotFeaturesGroups(slotFeaturesGroups);
+			modelHandler.setHintsFeaturableFeaturesGroups(hintFeaturableFeaturesGroups);
+			modelHandler.setHintsSlotFeaturesGroups(hintSlotFeaturesGroups);
+			clock.start();
+			modelHandler.trainModel(trainingDatasets, new HashMap<>());
+			clock.stop();
+
+			FileUtilsCust.createCSV(String.format("%s/trainingTime.csv",modelHandler.getClassifiersRootFolder()));
+			FileUtilsCust.addLine(String.format("%s/trainingTime.csv",modelHandler.getClassifiersRootFolder()), clock.getCPUTime());
+			modelHandler.closeContext();
 		}
 
-		modelHandler.setFeaturableFeaturesGroups(featurableFeaturesGroups);
-		modelHandler.setSlotFeaturesGroups(slotFeaturesGroups);
-		modelHandler.setHintsFeaturableFeaturesGroups(hintFeaturableFeaturesGroups);
-		modelHandler.setHintsSlotFeaturesGroups(hintSlotFeaturesGroups);
-		clock.start();
-		modelHandler.trainModel(trainingDatasets, new HashMap<>());
-		clock.stop();
-		//FileUtilsCust.createCSV(String.format("%s/results/%s-domains/trainingTime.csv", resultsPath, numberOfDomains));
-		//FileUtilsCust.addLine(String.format("%s/results/%s-domains/trainingTime.csv", resultsPath, numberOfDomains), clock.getCPUTime());
-		
-		modelHandler.closeContext();
+
+		//
+
 	}
-	
+
 	public static void checkHints(Dataset dataset) {
 		assert dataset != null;
 		List<Slot> children;
