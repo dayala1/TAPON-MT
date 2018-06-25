@@ -101,20 +101,19 @@ public class Pham_JaccardTextual extends Feature<Attribute>{
 
 		value = -1.0;
 
-		if (element.getNumericValue() == null) {
-			intersection = 0;
-			union = 1;
-			attributeValue1 = element.getValue();
-			for (String attributeValue2 : attributeValues) {
-				if (attributeValue1.equals(attributeValue2)) {
-					intersection++;
-				} else {
-					union++;
-				}
 
+		intersection = 0;
+		union = 1;
+		attributeValue1 = element.getValue();
+		for (String attributeValue2 : attributeValues) {
+			if (attributeValue1.equals(attributeValue2)) {
+				intersection++;
+			} else {
+				union++;
 			}
-			value = ((double) intersection) / union;
+
 		}
+		value = ((double) intersection) / union;
 
 		result = new FeatureValue();
 		result.setFeature(this);

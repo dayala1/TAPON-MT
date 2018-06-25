@@ -1,4 +1,4 @@
-package model.randomForest;
+package model;
 
 import dataset.Attribute;
 import dataset.Record;
@@ -30,13 +30,10 @@ import org.apache.spark.sql.types.StructField;
 import org.apache.spark.sql.types.StructType;
 import org.json.simple.parser.ParseException;
 import utils.FileUtilsCust;
-import utils.RandomForestParsing.RandomForestParser;
-import utils.RandomForestParsing.Tree;
 
 import java.io.*;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
 
 public abstract class SparkHandler implements Serializable {
 	protected static final long serialVersionUID = 4424575592980018563L;
@@ -62,13 +59,13 @@ public abstract class SparkHandler implements Serializable {
 	protected Map<Integer, String> featureNamesAttributesHB;
 	protected Map<Integer, String> featureNamesRecordsHF;
 	protected Map<Integer, String> featureNamesRecordsHB;
-	protected Map<String, String> params;
+	protected Map<String, Object> params;
 
-	public void setParam(String param, String value){
+	public void setParam(String param, Object value){
 		params.put(param, value);
 	}
 
-	public String getParam(String param){
+	public Object getParam(String param){
 		return params.get(param);
 	}
 
@@ -246,16 +243,18 @@ public abstract class SparkHandler implements Serializable {
 
 	public abstract void writeClassifiersString(String folderPath) throws IOException;
 
-	public abstract ProbabilisticClassificationModel loadClassifier(String path);
+	public abstract ClassificationModel loadClassifier(String path);
 
-	public abstract void saveClassifier(ProbabilisticClassificationModel classifier, String path);
+	public abstract Classifier createClassifier();
+
+	public abstract void saveClassifier(ClassificationModel classifier, String path) throws IOException;
 
 	public void loadClassifiers(boolean hints){
 		assert classifiersFolder != null;
 
 		File classifiersFolderFile;
 		File[] classifiersFiles;
-		ProbabilisticClassificationModel cm;
+		ClassificationModel cm;
 		String classifierPath;
 		Classifier model;
 		int i;
@@ -269,7 +268,7 @@ public abstract class SparkHandler implements Serializable {
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
 				cm = loadClassifier(file.getAbsolutePath());
-				model = new ClassifierRandomForest();
+				model = createClassifier();
 				model.setModel(cm);
 				model.setName(file.getName());
 				attributeClassifiersHintFree.add(model);
@@ -281,7 +280,7 @@ public abstract class SparkHandler implements Serializable {
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
 				cm = loadClassifier(file.getAbsolutePath());
-				model = new ClassifierRandomForest();
+				model = createClassifier();
 				model.setModel(cm);
 				model.setName(file.getName());
 				recordClassifiersHintFree.add(model);
@@ -303,7 +302,7 @@ public abstract class SparkHandler implements Serializable {
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
 				cm = loadClassifier(file.getAbsolutePath());
-				model = new ClassifierRandomForest();
+				model = createClassifier();
 				model.setModel(cm);
 				model.setName(file.getName());
 				attributeClassifiersHintBased.add(model);
@@ -315,7 +314,7 @@ public abstract class SparkHandler implements Serializable {
 			classifiersFiles = classifiersFolderFile.listFiles();
 			for (File file : classifiersFiles) {
 				cm = loadClassifier(file.getAbsolutePath());
-				model = new ClassifierRandomForest();
+				model = createClassifier();
 				model.setModel(cm);
 				model.setName(file.getName());
 				recordClassifiersHintBased.add(model);
@@ -353,8 +352,8 @@ public abstract class SparkHandler implements Serializable {
 		}
 	}
 
-	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints){
-		return classify(slot, useProbabilities, true);
+	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints) throws IOException, ParseException {
+		return classify(slot, useProbabilities, hints, true);
 	}
 
 	public Pair<String, LinkedHashMap<String, Double>> classify(Slot slot, boolean useProbabilities, boolean hints, boolean useMulticlass)
@@ -386,7 +385,6 @@ public abstract class SparkHandler implements Serializable {
 				model = recordMulticlassClassifierHintFree;
 			}
 		}
-
 		classificationsMap = applyClassifiersMap(slot, useProbabilities, hints);
 		classificationsTemp = classificationsMap.values().toArray(new Double[0]);
 
@@ -426,7 +424,7 @@ public abstract class SparkHandler implements Serializable {
 		File outFile;
 		File tableFile;
 		String firstLine;
-		ProbabilisticClassificationModel model;
+		ClassificationModel model;
 
 		if (hints) {
 			outFile = new File(String.format("%s/classifiersHint/attributes", classifiersFolder));
@@ -499,10 +497,11 @@ public abstract class SparkHandler implements Serializable {
 
 		classifications = new ArrayList<Double>();
 		for (Classifier model : models) {
-			if (useProbabilities) {
-				classification = model.getModel().predictProbability(vector).toArray()[1];
+			ClassificationModel classifier = model.getModel();
+			if (useProbabilities && classifier instanceof ProbabilisticClassificationModel) {
+				classification = ((ProbabilisticClassificationModel)classifier).predictProbability(vector).toArray()[1];
 			} else {
-				classification = model.getModel().predict(vector);
+				classification = classifier.predict(vector);
 			}
 			classifications.add(classification);
 		}
@@ -538,11 +537,13 @@ public abstract class SparkHandler implements Serializable {
 				models = attributeClassifiersHintFree;
 			}
 		}
+
 		for (Classifier model : models) {
-			if (useProbabilities) {
-				classification = model.getModel().predictProbability(vector).toArray()[1];
+			ClassificationModel classifier = model.getModel();
+			if (useProbabilities && classifier instanceof ProbabilisticClassificationModel) {
+				classification = ((ProbabilisticClassificationModel)classifier).predictProbability(vector).toArray()[1];
 			} else {
-				classification = model.getModel().predict(vector);
+				classification = classifier.predict(vector);
 			}
 			result.put(model.getName(), classification);
 		}
@@ -558,8 +559,8 @@ public abstract class SparkHandler implements Serializable {
 		String filePath;
 		File csvFile;
 		String newCsvPath;
-		List<ProbabilisticClassificationModel> models;
-		ProbabilisticClassificationModel model;
+		List<ClassificationModel> models;
+		ClassificationModel model;
 		String slotClass;
 		List<String> featureList;
 		List<String> classifierNames;
@@ -623,9 +624,9 @@ public abstract class SparkHandler implements Serializable {
 				// how they are created.
 				featureList = new ArrayList<String>();
 				featureList.add(elementId);
-				for (ProbabilisticClassificationModel MPCModel : models) {
-					if (useProbabilities) {
-						classification = MPCModel.predictProbability(vector).toArray()[1];
+				for (ClassificationModel MPCModel : models) {
+					if (useProbabilities && MPCModel instanceof ProbabilisticClassificationModel) {
+						classification = ((ProbabilisticClassificationModel)MPCModel).predictProbability(vector).toArray()[1];
 					} else {
 						classification = MPCModel.predict(vector);
 					}
@@ -685,8 +686,12 @@ public abstract class SparkHandler implements Serializable {
 				// how they are created.
 				featureList = new ArrayList<String>();
 				featureList.add(elementId);
-				for (ProbabilisticClassificationModel MPCModel : models) {
-					classification = MPCModel.predict(vector);
+				for (ClassificationModel MPCModel : models) {
+					if (useProbabilities && MPCModel instanceof ProbabilisticClassificationModel) {
+						classification =  ((ProbabilisticClassificationModel)MPCModel).predictProbability(vector).toArray()[1];;
+					} else {
+						classification = MPCModel.predict(vector);
+					}
 					featureList.add(String.valueOf(classification));
 				}
 				featureList.add(String.valueOf(slotClassDouble));
@@ -773,7 +778,7 @@ public abstract class SparkHandler implements Serializable {
 
 	// Ancillary methods----------------------------------------------
 
-	protected abstract ProbabilisticClassificationModel trainBinaryClassifier(String trainingFilePath, String slotClass);
+	protected abstract ClassificationModel trainBinaryClassifier(String trainingFilePath, String slotClass);
 
 	protected Dataset<Row> csvToDataset(JavaRDD<String> data, final String slotClass) {
 		assert data != null;

@@ -78,7 +78,7 @@ public class Pham_JaccardNumeric extends Feature<Attribute>{
 				attributeValue = Double.valueOf(document.get("value"));
 				values.add(attributeValue);
 			} catch (Exception e){
-				System.out.println("Non numeric attribute in numeric class");
+				System.out.println(String.format("Non numeric attribute in numeric class: %s in class %s", document.get("value"), className));
 			}
 		}
 		//To avoid outliers, we only consider data between the 1st and 3rd quartiles
@@ -119,9 +119,12 @@ public class Pham_JaccardNumeric extends Feature<Attribute>{
 
 		attributeValue = element.getNumericValue();
 		if(attributeValue != null) {
-			value =Math.max(0.0,
+			value = Math.max(0.0,
 					(Math.min(maxValue, attributeValue) - Math.max(minValue, attributeValue)) / (Math.max(maxValue, attributeValue) - Math.min(minValue, attributeValue))
 			);
+			if(Double.isNaN(value)){
+				value = 1.0;
+			}
 		}
 		
 		result = new FeatureValue();
@@ -136,7 +139,7 @@ public class Pham_JaccardNumeric extends Feature<Attribute>{
 	public String toString() {
 		String result;
 		
-		result = String.format("Jaccard similarity for class %s", className);
+		result = String.format("Numeric Jaccard similarity for class %s", className);
 		
 		return result;
 	}

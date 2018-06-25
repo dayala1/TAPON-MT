@@ -16,7 +16,7 @@ public class NumberUtils {
 		try {
 			result = Double.parseDouble(value);
 		} catch (Exception e) {
-			System.out.println(String.format("There was an error while trying to parse the number %s", value));
+			//System.out.println(String.format("There was an error while trying to parse the number %s", value));
 		}
 
 		return result;

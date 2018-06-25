@@ -214,7 +214,6 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 		analyzer.setVersion(Version.LUCENE_5_4_1);
 		indexWriterConfig = new IndexWriterConfig(analyzer);
 		indexWriter = new IndexWriter(directory, indexWriterConfig);
-		//TODO deteccion de clases numericas
 		numericExamples = new HashMap<>();
 		textualExamples = new HashMap<>();
 		for (Dataset dataset : datasets) {
@@ -258,10 +257,15 @@ public class DatasetFeaturesCalculator extends Observable<Featurable> implements
 
 		for (String sC :
 				classesConfiguration.getAttributeClasses()) {
-				if( 1.0*numericExamples.get(sC) / textualExamples.get(sC) > 0.75 ) {
+				int numNumeric = numericExamples.getOrDefault(sC, 0);
+				int numTextual = textualExamples.getOrDefault(sC, 0);
+				if( 1.0*numNumeric / (numNumeric + numTextual)  > 0.80 ) {
 					classesConfiguration.setIsNumeric(sC, true);
+					System.out.println(String.format("Numeric class: %s", sC));
+
 				} else {
 					classesConfiguration.setIsNumeric(sC, false);
+					System.out.println(String.format("Textual class: %s", sC));
 				}
 		}
 

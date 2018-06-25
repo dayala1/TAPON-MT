@@ -73,5 +73,16 @@ public class Dataset extends Featurable {
 		
 		return res;
 	}
+
+	public List<Slot> getAllSlots(){
+		List<Slot> result = new ArrayList<>();
+		for (Slot slot:this.getSlots()) {
+			result.add(slot);
+			if(slot instanceof Record){
+				result.addAll(((Record)slot).getAllSlots());
+			}
+		}
+		return result;
+	}
 	
 }

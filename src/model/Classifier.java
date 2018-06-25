@@ -1,10 +1,11 @@
-package model.randomForest;
+package model;
 
+import org.apache.spark.ml.classification.ClassificationModel;
 import org.apache.spark.ml.classification.ProbabilisticClassificationModel;
 
 import java.io.Serializable;
 
-public interface Classifier<T extends ProbabilisticClassificationModel> extends Serializable{
+public interface Classifier<T extends ClassificationModel> extends Serializable{
 
 	//Properties-----------------------------------------------------
 

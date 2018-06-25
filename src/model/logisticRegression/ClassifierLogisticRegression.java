@@ -1,21 +1,21 @@
-package model.randomForest;
+package model.logisticRegression;
 
 import model.Classifier;
+import org.apache.spark.ml.classification.LogisticRegressionModel;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 
-public class ClassifierRandomForest implements Classifier<RandomForestClassificationModel> {
+public class ClassifierLogisticRegression implements Classifier<LogisticRegressionModel> {
 	
 	private static final long serialVersionUID = 4966109125913354099L;
 
 	//Properties-----------------------------------------------------
-	private RandomForestClassificationModel model;
+	private LogisticRegressionModel model;
 	private String name;
-	public RandomForestClassificationModel getModel() {
+	public LogisticRegressionModel getModel() {
 		return model;
 	}
-	public void setModel(RandomForestClassificationModel model) {
+	public void setModel(LogisticRegressionModel model) {
 		assert model != null;
-	
 		this.model = model;
 	}
 	public String getName() {

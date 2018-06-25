@@ -25,10 +25,12 @@ public class Pham_DistributionSimilarityGroup extends FeaturesGroup<Attribute>{
 		Pham_DistributionSimilarity distributionSimilarity;
 		
 		for (String slotClass : getAttributeClasses()) {
-			distributionSimilarity = new Pham_DistributionSimilarity();
-			distributionSimilarity.setIndexPath(getIndexPath());
-			distributionSimilarity.setClassName(slotClass);
-			addFeature(distributionSimilarity);
+			if(this.classesConfiguration.getIsNumeric(slotClass)) {
+				distributionSimilarity = new Pham_DistributionSimilarity();
+				distributionSimilarity.setIndexPath(getIndexPath());
+				distributionSimilarity.setClassName(slotClass);
+				addFeature(distributionSimilarity);
+			}
 		}
 	}
 

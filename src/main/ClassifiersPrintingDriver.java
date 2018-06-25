@@ -6,14 +6,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import model.randomForest.ClassifierRandomForest;
+import model.Classifier;
 import model.randomForest.ModelHandlerRandomForest;
-import model.randomForest.SparkHandlerRandomForest;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.ml.classification.RandomForestClassificationModel;
 import org.apache.spark.ml.linalg.Vector;
-import org.apache.spark.mllib.classification.LogisticRegressionModel;
 import org.json.simple.parser.ParseException;
 
 public class ClassifiersPrintingDriver {
@@ -28,17 +26,17 @@ public class ClassifiersPrintingDriver {
 		sparkConf.setMaster(sparkConf.get("master", "local[*]"));
 		context = new JavaSparkContext(sparkConf);
 		ModelHandlerRandomForest modelHandler = new ModelHandlerRandomForest();
-		modelHandler.setClassifiersRootFolder("E:/model/resultsCompareOneVsAll/3-folds/0/classifiersAndTables/modelClassifiers");
-		modelHandler.setTablesRootFolder("E:/model/resultsCompareOneVsAll/3-folds/0/classifiersAndTables/modelTables");
+		modelHandler.setClassifiersRootFolder("E:/model/testHBFeaturesUse/8-folds/0/classifiersAndTables/modelClassifiers");
+		modelHandler.setTablesRootFolder("E:/model/testHBFeaturesUse/8-folds/0/classifiersAndTables/modelTables");
 		modelHandler.loadClassifiers();
 		modelHandler.loadFeaturesCalculators();
 		modelHandler.loadFeatureNames();
 		Map<Integer, String> featureNames = modelHandler.getFeatureNamesAttributesHB();
 		Integer countHB = 0;
-		for (ClassifierRandomForest model :
+		for (Classifier model :
 				modelHandler.getSparkHandler().getAttributeClassifiersHintBased()) {
 			System.out.println(model.getName());
-			Vector importances = model.getModel().featureImportances();
+			Vector importances = ((RandomForestClassificationModel)model.getModel()).featureImportances();
 			List<Integer> bestFeatures = IntStream.range(0, importances.size()).mapToObj(i->new Integer(i)).sorted(Comparator.comparing(n->importances.apply((int)n)).reversed()).limit(5).collect(Collectors.toList());
 			for (Integer feature:
 				 bestFeatures) {

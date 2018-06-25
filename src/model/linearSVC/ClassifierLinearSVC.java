@@ -1,21 +1,22 @@
-package model.randomForest;
+package model.linearSVC;
 
 import model.Classifier;
-import org.apache.spark.ml.classification.RandomForestClassificationModel;
+import org.apache.spark.ml.classification.LinearSVC;
+import org.apache.spark.ml.classification.LinearSVCModel;
+import org.apache.spark.mllib.classification.SVMModel;
 
-public class ClassifierRandomForest implements Classifier<RandomForestClassificationModel> {
+public class ClassifierLinearSVC implements Classifier<LinearSVCModel> {
 	
 	private static final long serialVersionUID = 4966109125913354099L;
 
 	//Properties-----------------------------------------------------
-	private RandomForestClassificationModel model;
+	private LinearSVCModel model;
 	private String name;
-	public RandomForestClassificationModel getModel() {
+	public LinearSVCModel getModel() {
 		return model;
 	}
-	public void setModel(RandomForestClassificationModel model) {
+	public void setModel(LinearSVCModel model) {
 		assert model != null;
-	
 		this.model = model;
 	}
 	public String getName() {

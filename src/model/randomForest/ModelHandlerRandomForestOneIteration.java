@@ -498,8 +498,8 @@ public class ModelHandlerRandomForestOneIteration {
 		assert sparkHandler != null;
 		assert params != null;
 
-		sparkHandler.setNumTrees(Integer.valueOf(params.getOrDefault("numTrees", "50")));
-		sparkHandler.setMaxBins(Integer.valueOf(params.getOrDefault("maxBins", "32")));
-		sparkHandler.setMaxDepth(Integer.valueOf(params.getOrDefault("maxDepth", "15")));
+		sparkHandler.setParam("numTrees", Integer.valueOf(params.getOrDefault("numTrees", "20")));
+		sparkHandler.setParam("maxBins", Integer.valueOf(params.getOrDefault("maxBins", "32")));
+		sparkHandler.setParam("maxDepth", Integer.valueOf(params.getOrDefault("maxDepth", "5")));
 	}
 }

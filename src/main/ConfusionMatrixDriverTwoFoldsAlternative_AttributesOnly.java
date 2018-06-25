@@ -59,16 +59,16 @@ public class ConfusionMatrixDriverTwoFoldsAlternative_AttributesOnly {
 		Double precision;
 		Double recall;
 		Double f1;
-		
-		datasetsRootPath = "C:/Users/Boss/Documents/KushmerickTwoFolds/results/results/10-domains";
-		classesPath = "C:/Users/Boss/Documents/RandomForestNew/classifiersAndTables/modelTables/10-domains/fold-1/classes.json";
-		techName = "Kushmerick";
+
+		datasetsRootPath = "E:/model/testsPham/8-folds";
+		classesPath = "E:/Documents/US/Tesis/datasets/classes.json";
+		techName = "Pham";
 		addIterations = false;
 		slotClasses = Sets.newHashSet();
 		addClasses(slotClasses, classesPath);
 		slotClasses.add("none");
 		maxNumIterations = 1;
-		resultsFilePath = String.format("%s/experimentalResults.csv", datasetsRootPath);
+		resultsFilePath = String.format("%s/experimentalResults2.csv", datasetsRootPath);
 		FileUtilsCust.createCSV(resultsFilePath);
 		rows = Lists.newArrayList();
 		header = Lists.newArrayList();
@@ -78,8 +78,8 @@ public class ConfusionMatrixDriverTwoFoldsAlternative_AttributesOnly {
 		header.add("RECALL");
 		header.add("F1");
 		numSlots = 0;
-		for(int j2 = 1; j2 <= 9; j2++){
-			for(int j = j2+1; j <= 10; j++) {
+		for(int j2 = 0; j2 <= 9; j2++){
+			//for(int j = j2+1; j <= 10; j++) {
 				for (int i = 1; i <= maxNumIterations; i++) {
 					confusionMatrix = HashBasedTable.create();
 					
@@ -95,7 +95,7 @@ public class ConfusionMatrixDriverTwoFoldsAlternative_AttributesOnly {
 					numClasses = 0.0;
 					totalPrecision = 0.0;
 					totalRecall = 0.0;
-					datasetsFolderPath = String.format("%s/fold-%s-%s/%s-iterations", datasetsRootPath, j2, j, i);
+					datasetsFolderPath = String.format("%s/%s/results/results/%s-iterations", datasetsRootPath, j2, i);
 					datasetsFolder = new File(datasetsFolderPath);
 					datasetFolders = datasetsFolder.listFiles();
 					for (File datasetFolder : datasetFolders) {
@@ -203,7 +203,7 @@ public class ConfusionMatrixDriverTwoFoldsAlternative_AttributesOnly {
 					rows.add(row);
 				}
 			
-			}
+			//}
 		}
 		/*for (String	slotClass : slotClasses) {
 			header.add(String.format("%s-PRECISION", slotClass));

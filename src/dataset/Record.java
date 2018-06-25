@@ -109,4 +109,45 @@ public class Record extends Slot{
 		
 		return res;
 	}
+
+	public List<Slot> getAllSlots(){
+		List<Slot> result = new ArrayList<>();
+		for (Slot slot :
+				this.getSlots()) {
+			result.add(slot);
+			if(slot instanceof Record){
+				result.addAll(((Record)slot).getAllSlots());
+			}
+		}
+		return result;
+	}
+
+	public JSONObject getJSONObjectWithoutChildren() {
+		JSONObject res;
+		LinkedHashMap<String, Double> ranking;
+		List<Entry<String, Double>> entries;
+
+		res = new JSONObject();
+		if (this.getSlotClass() != null) {
+			res.put("class", this.getSlotClass());
+		}
+		if (this.getName() != null) {
+			res.put("name", this.getName());
+		}
+		if (this.getHint() != null) {
+			res.put("hint", this.getHint());
+			ranking = this.getHintsRanking();
+			entries = Lists.newArrayList(ranking.entrySet());
+			res.put("HB1", entries.get(0).getKey());
+			res.put("HB1P", entries.get(0).getValue());
+			res.put("HB2", entries.get(1).getKey());
+			res.put("HB2P", entries.get(1).getValue());
+			res.put("HB3", entries.get(2).getKey());
+			res.put("HB3P", entries.get(2).getValue());
+			res.put("HB4", entries.get(3).getKey());
+			res.put("HB4P", entries.get(3).getValue());
+		}
+
+		return res;
+	}
 }

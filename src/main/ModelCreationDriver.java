@@ -6,13 +6,7 @@ import dataset.Record;
 import dataset.Slot;
 import featuresCalculation.DatasetFeaturesCalculator;
 import featuresCalculation.FeaturesGroup;
-import featuresCalculation.featureGroups.attribute.CharacterDensityGroup;
-import featuresCalculation.featureGroups.attribute.CommonPrefixSuffixLengthGroup;
-import featuresCalculation.featureGroups.attribute.EditDistanceGroup;
-import featuresCalculation.featureGroups.attribute.NumberOfOccurrencesGroup;
-import featuresCalculation.featureGroups.attribute.NumericValueGroup;
-import featuresCalculation.featureGroups.attribute.TokenDensityGroup;
-import featuresCalculation.featureGroups.attribute.TyperScoreGroup;
+import featuresCalculation.featureGroups.attribute.*;
 import featuresCalculation.featureGroups.featurable.Hint_MinimumTreeDistanceGroup;
 import featuresCalculation.featureGroups.record.Hint_DensityOfSlotGroup;
 import featuresCalculation.featureGroups.record.NumberOfChildrenGroup;
@@ -21,6 +15,9 @@ import featuresCalculation.featureGroups.slot.Hint_DensityOfBrothersGroup;
 import featuresCalculation.featureGroups.slot.NodeDepthGroup;
 import featuresCalculation.featureGroups.slot.NumberOfBrothersGroup;
 import featuresCalculation.featureGroups.slot.OliveiraDaSilvaGroup;
+import model.ModelHandler;
+import model.linearSVC.ModelHandlerLinearSVC;
+import model.logisticRegression.ModelHandlerLogisticRegression;
 import model.randomForest.ModelHandlerRandomForest;
 import utils.ClockMonitor;
 import utils.DatasetReader;
@@ -40,32 +37,37 @@ public class ModelCreationDriver {
 		Set<FeaturesGroup> featurableFeaturesGroups;
 		Set<FeaturesGroup> hintSlotFeaturesGroups;
 		Set<FeaturesGroup> hintFeaturableFeaturesGroups;
+
 		CharacterDensityGroup characterDensityGroup;
 		TokenDensityGroup tokenDensityGroup;
 		NumberOfOccurrencesGroup numberOfOccurrencesGroup;
-		OliveiraDaSilvaGroup oliveiraDaSilvaGroup;
+		//OliveiraDaSilvaGroup oliveiraDaSilvaGroup;
 		Hint_NumberOfSlotsRecordGroup numberOfSlotsRecordGroup;
 		CommonPrefixSuffixLengthGroup commonPrefixSuffixLengthGroup;
 		Hint_DensityOfSlotGroup densityOfSlotsGroup;
 		NodeDepthGroup nodeDepthGroup;
 		EditDistanceGroup editDistanceGroup;
-		TyperScoreGroup typerScoreGroup;
 		Hint_MinimumTreeDistanceGroup minimumTreeDistanceGroup;
 		NumberOfBrothersGroup numberOfBrothersGroup;
-		NumberOfChildrenGroup numberOfChildrenGroup;
 		Hint_DensityOfBrothersGroup densityofBrothersGroup;
 		NumericValueGroup numericValueGroup;
+
+		/*TyperScoreGroup typerScoreGroup;
+		Pham_DistributionSimilarityGroup distributionSimilarityGroup;
+		Pham_JaccardGroup jaccardGroup;*/
+		NumberOfChildrenGroup numberOfChildrenGroup;
+
 		DatasetFeaturesCalculator datasetFeaturesCalculator;
 
 		//MODEL APPLICATION
 		List<Dataset> trainingDatasets;
-		List<Dataset> testingDatasets;
 		DatasetReader datasetReader;
 		String classifiersTablesRoot;
-		String resultsRoot;
 		String datasetsRoot;
 		String datasetsPath;
-		ModelHandlerRandomForest modelHandler;
+		Boolean createSecondModel;
+		Boolean useMulticlass;
+		ModelHandler modelHandler;
 
 		clock = new ClockMonitor();
 
@@ -73,28 +75,30 @@ public class ModelCreationDriver {
 		//MODEL APPLICATION
 		datasetReader = new DatasetReader();
 
-		String[] domains = new String[]{"Articles", "Awards", "Countries", "Courseware", "Dev8d", "DigitalEconomy", "Edubase", "Epo", "Epsrc", "Restaurants"};
+		String[] domains = new String[]{"TAPON-MT"};
 		Integer numberOfDomains = domains.length;
-		classifiersTablesRoot = "E:/model/resultsCompareOneVsAll";
-		Integer numberOfFolds = 8;
-		datasetsRoot = "E:/Documents/US/Tesis";
+		classifiersTablesRoot = "E:/model/exampleLinearSVC";
+		Integer numberOfFolds = 5;
+		datasetsRoot = "E:/Documents/US/Tesis/datasets";
+		createSecondModel = true;
+		useMulticlass = true;
 		Set<Integer> trainingFolds;
 
-		for (int i = 1; i < 2; i++) {
+		for (int i = 0; i < 1; i++) {
 			trainingFolds = new HashSet<>();
 			for (int j = i; j < i+numberOfFolds; j++) {
 				trainingFolds.add(j%10+1);
 			}
 			System.out.println(trainingFolds);
 
-			modelHandler = new ModelHandlerRandomForest();
+			modelHandler = new ModelHandlerLinearSVC();
 			modelHandler.setClassifiersRootFolder(String.format("%s/%s-folds/%s/classifiersAndTables/modelClassifiers", classifiersTablesRoot, numberOfFolds, i));
 			modelHandler.setTablesRootFolder(String.format("%s/%s-folds/%s/classifiersAndTables/modelTables", classifiersTablesRoot, numberOfFolds, i));
 
-			slotFeaturesGroups = new HashSet<FeaturesGroup>();
-			hintSlotFeaturesGroups = new HashSet<FeaturesGroup>();
-			featurableFeaturesGroups = new HashSet<FeaturesGroup>();
-			hintFeaturableFeaturesGroups = new HashSet<FeaturesGroup>();
+			slotFeaturesGroups = new HashSet<>();
+			hintSlotFeaturesGroups = new HashSet<>();
+			featurableFeaturesGroups = new HashSet<>();
+			hintFeaturableFeaturesGroups = new HashSet<>();
 
 			characterDensityGroup = new CharacterDensityGroup();
 			tokenDensityGroup = new TokenDensityGroup();
@@ -104,12 +108,16 @@ public class ModelCreationDriver {
 			densityOfSlotsGroup = new Hint_DensityOfSlotGroup();
 			nodeDepthGroup = new NodeDepthGroup();
 			editDistanceGroup = new EditDistanceGroup();
-			typerScoreGroup = new TyperScoreGroup();
 			numberOfBrothersGroup = new NumberOfBrothersGroup();
-			numberOfChildrenGroup = new NumberOfChildrenGroup();
 			minimumTreeDistanceGroup = new Hint_MinimumTreeDistanceGroup();
 			densityofBrothersGroup = new Hint_DensityOfBrothersGroup();
 			numericValueGroup = new NumericValueGroup();
+
+			numberOfChildrenGroup = new NumberOfChildrenGroup();
+			/*distributionSimilarityGroup = new Pham_DistributionSimilarityGroup();
+			jaccardGroup = new Pham_JaccardGroup();
+			typerScoreGroup = new TyperScoreGroup();*/
+
 
 			slotFeaturesGroups.add(characterDensityGroup);
 			slotFeaturesGroups.add(tokenDensityGroup);
@@ -117,20 +125,25 @@ public class ModelCreationDriver {
 			slotFeaturesGroups.add(commonPrefixSuffixLengthGroup);
 			slotFeaturesGroups.add(nodeDepthGroup);
 			slotFeaturesGroups.add(editDistanceGroup);
-			slotFeaturesGroups.add(typerScoreGroup);
 			slotFeaturesGroups.add(numberOfBrothersGroup);
-			slotFeaturesGroups.add(numberOfChildrenGroup);
 			slotFeaturesGroups.add(numericValueGroup);
+
+			slotFeaturesGroups.add(numberOfChildrenGroup);
+			/*slotFeaturesGroups.add(typerScoreGroup);
+			slotFeaturesGroups.add(distributionSimilarityGroup);
+			slotFeaturesGroups.add(jaccardGroup);
+			*/
 			hintSlotFeaturesGroups.add(numberOfSlotsRecordGroup);
 			hintSlotFeaturesGroups.add(densityOfSlotsGroup);
 			hintSlotFeaturesGroups.add(densityofBrothersGroup);
 			hintFeaturableFeaturesGroups.add(minimumTreeDistanceGroup);
 
+
 			trainingDatasets = new ArrayList<Dataset>();
 
 			for (String domain : domains) {
 				for (Integer trainingFold : trainingFolds) {
-					datasetsPath = String.format("%s/Datasets/%s/%s",datasetsRoot, domain, trainingFold);
+					datasetsPath = String.format("%s/%s/%s",datasetsRoot, domain, trainingFold);
 					datasetReader.addDataset(datasetsPath, 1.0, trainingDatasets);
 				}
 			}
@@ -140,7 +153,7 @@ public class ModelCreationDriver {
 			modelHandler.setHintsFeaturableFeaturesGroups(hintFeaturableFeaturesGroups);
 			modelHandler.setHintsSlotFeaturesGroups(hintSlotFeaturesGroups);
 			clock.start();
-			modelHandler.trainModel(trainingDatasets, new HashMap<>());
+			modelHandler.trainModel(trainingDatasets, new HashMap<>(), createSecondModel, useMulticlass);
 			clock.stop();
 
 			FileUtilsCust.createCSV(String.format("%s/trainingTime.csv",modelHandler.getClassifiersRootFolder()));
